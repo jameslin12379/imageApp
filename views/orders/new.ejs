@@ -1,0 +1,50 @@
+<% include ../partials/header %>
+
+<div class="container">
+    <!--<div class="py-5 text-center">-->
+        <!--&lt;!&ndash;<img class="d-block mx-auto mb-4" src="../../assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">&ndash;&gt;-->
+        <!--<h2>Checkout form</h2>-->
+        <!--<p class="lead">Below is an example form built entirely with Bootstrap's form controls. Each required form group has a validation state that can be triggered by attempting to submit the form without completing it.</p>-->
+    <!--</div>-->
+    <div class="row">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-6 pt-80">
+                <h3 class="mb-3">Create order</h3>
+                <% if (errors.length > 0) {  %>
+                <% for(var i = 0; i < errors.length; i++) { %>
+                <div class="alert alert-danger" role="alert">
+                    <%= errors[i].msg %>
+                </div>
+                <% } %>
+                <% } %>
+
+                <form action="/orders" method="post" class="needs-validation">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" name="amount" placeholder="Amount" <% if (inputs.length > 0) { %>value="<%= inputs[0].amount %>"<% } %> required>
+                    </div>
+
+                    <div class="mb-3">
+                        <!--<div class="input-group">-->
+                            <!--<div class="input-group-prepend">-->
+                                <!--<span class="input-group-text">@</span>-->
+                            <!--</div>-->
+                        <input type="date" class="form-control" name="date" placeholder="Date" <% if (inputs.length > 0) { %> value="<%= inputs[0].date %>" <% } %> required>
+                        <!--</div>-->
+                    </div>
+
+                    <div class="mb-3">
+                        <input type="text" class="form-control" name="description" placeholder="Description" <% if (inputs.length > 0) { %>value="<%= inputs[0].description %>"<% } %> required>
+                    </div>
+
+                    <button class="btn btn-primary btn-lg btn-block" type="submit">Create order</button>
+                </form>
+        </div>
+        <div class="col-md-3">
+        </div>
+</div>
+</div>
+
+<% include ../partials/footer %>
+
+

@@ -1,0 +1,82 @@
+/*body {*/
+  /*padding: 50px;*/
+  /*font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;*/
+/*}*/
+
+/*a {*/
+  /*color: #00B7FF;*/
+/*}*/
+
+.pt-80 {
+  padding-top: 80px;
+}
+
+.mt-80 {
+  margin-top: 80px;
+}
+
+.white {
+  color: white;
+}
+
+.flex-d {
+  flex-direction: row;
+}
+
+.align-items {
+  align-items: center;
+}
+
+.margin-0-auto {
+  margin: 0 auto;
+}
+
+.center {
+  text-align: center;
+}
+
+.mb-zero {
+  margin-bottom: 0 !important;
+}
+
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: auto;
+}
+.form-signin .checkbox {
+  font-weight: 400;
+}
+.form-signin .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+.form-signin input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.form-signin input[type="password"] {
+  /*margin-bottom: 10px;*/
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+input, button {
+  border-radius: 0 !important;
+}
+
+/*body {*/
+  /*height: initial;*/
+/*}*/
+
+.alert {
+  border-radius: 0;
+}

@@ -1,0 +1,47 @@
+<% include ../partials/header %>
+
+<div class="container">
+    <% if (errors.length > 0) {  %>
+    <% for(var i = 0; i < errors.length; i++) { %>
+    <div class="alert alert-danger" role="alert">
+        <%= errors[i].msg %>
+    </div>
+    <% } %>
+    <% } %>
+
+    <form action="/clients/<%= id %>?_method=PUT" method="post">
+        <div class="form-group">
+            <input type="text" name="firstname" class="form-control" value="<% if (inputs.length > 0) { %><%= inputs[0].firstname %><% } else{ %> <%= data[0].firstName %> <% } %>" required>
+        </div>
+        <div class="form-group">
+            <input type="text" name="lastname" class="form-control" value="<% if (inputs.length > 0) { %><%= inputs[0].lastname %><% } else{ %> <%= data[0].lastName %> <% } %>" required>
+        </div>
+        <div class="form-group">
+            <input type="date" name="dob" class="form-control" value="<% if (inputs.length > 0) { %><%= inputs[0].dob %><% } else{ %> <%= data[0].dob %> <% } %>" required>
+        </div>
+        <div class="form-group">
+            <select name="gender">
+                <option <% if (data[0].gender === 'M') { %> selected <% } %><% if (inputs.length > 0) { %><% if (inputs[0].gender === 'M'){ %> selected <% } %><% } %> value="M">Male</option>
+                <option <% if (data[0].gender === 'F') { %> selected <% } %><% if (inputs.length > 0) { %><% if (inputs[0].gender === 'F'){ %> selected <% } %><% } %> value="F">Female</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="text" name="city" class="form-control" value="<% if (inputs.length > 0) { %><%= inputs[0].city %><% } else{ %> <%= data[0].city %> <% } %>" required>
+        </div>
+        <div class="form-group">
+            <input type="text" name="state" class="form-control" value="<% if (inputs.length > 0) { %><%= inputs[0].state %><% } else{ %> <%= data[0].state %> <% } %>" required>
+        </div>
+        <div class="form-group">
+            <input type="email" name="email" class="form-control" value="<% if (inputs.length > 0) { %><%= inputs[0].email %><% } else{ %> <%= data[0].email %> <% } %>" required>
+        </div>
+        <div class="form-group">
+            <input type="tel" name="tel" class="form-control" value="<% if (inputs.length > 0) { %><%= inputs[0].tel %><% } else{ %> <%= data[0].phone %> <% } %>" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Edit client</button>
+    </form>
+
+
+
+</div>
+
+<% include ../partials/footer %>

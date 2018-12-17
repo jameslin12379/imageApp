@@ -1,0 +1,60 @@
+<% include ../partials/header %>
+
+<div class="container">
+    <!--<div class="py-5 text-center">-->
+    <!--&lt;!&ndash;<img class="d-block mx-auto mb-4" src="../../assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">&ndash;&gt;-->
+    <!--<h2>Checkout form</h2>-->
+    <!--<p class="lead">Below is an example form built entirely with Bootstrap's form controls. Each required form group has a validation state that can be triggered by attempting to submit the form without completing it.</p>-->
+    <!--</div>-->
+    <div class="row">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-6 pt-80">
+            <h3 class="mb-3">Edit employee</h3>
+            <% if (errors.length > 0) {  %>
+            <% for(var i = 0; i < errors.length; i++) { %>
+            <div class="alert alert-danger" role="alert">
+                <%= errors[i].msg %>
+            </div>
+            <% } %>
+            <% } %>
+            <form action="/employees/<%= id %>?_method=PUT" method="post" class="needs-validation">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <input type="text" class="form-control" name="firstname" placeholder="First name" value="<%if (inputs.length > 0) { %><%=inputs[0].firstname%><% }else{ %><%=data[0].firstName%><% } %>" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <input type="text" class="form-control" name="lastname" placeholder="Last name" value="<%if (inputs.length > 0) { %><%=inputs[0].lastname%><% }else{ %><%=data[0].lastName%><% } %>" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <select class="custom-select d-block w-100" name="position" required>
+                        <option>Make a selection</option>
+                        <option <% if (data[0].position === 'manager') { %> selected <% } %><% if (inputs.length > 0) { %><% if (inputs[0].position === 'manager'){ %> selected <% } %><% } %> value="manager">Manager</option>
+                        <option <% if (data[0].position === 'front end developer') { %> selected <% } %><% if (inputs.length > 0) { %><% if (inputs[0].position === 'front end developer'){ %> selected <% } %><% } %> value="front end developer">Front end developer</option>
+                        <option <% if (data[0].position === 'back end developer') { %> selected <% } %><% if (inputs.length > 0) { %><% if (inputs[0].position === 'back end developer'){ %> selected <% } %><% } %> value="back end developer">Back end developer</option>
+                        <option <% if (data[0].position === 'graphic designer') { %> selected <% } %><% if (inputs.length > 0) { %><% if (inputs[0].position === 'graphic designer'){ %> selected <% } %><% } %> value="graphic designer">Graphic designer</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <input type="email" class="form-control" name="email" placeholder="Email" value="<%if (inputs.length > 0) { %><%=inputs[0].email%><% }else{ %><%=data[0].email%><% } %>" required>
+                </div>
+
+                <div class="mb-3">
+                    <input type="text" class="form-control" name="phone" placeholder="Phone" value="<%if (inputs.length > 0) { %><%=inputs[0].phone%><% }else{ %><%=data[0].phone%><% } %>" required>
+                </div>
+
+
+                <button class="btn btn-primary btn-lg btn-block" type="submit">Edit employee</button>
+            </form>
+        </div>
+        <div class="col-md-3">
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer %>
+
+

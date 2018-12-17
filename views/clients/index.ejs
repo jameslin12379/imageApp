@@ -1,0 +1,162 @@
+<% include ../partials/header %>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+                    <!--<li class="nav-item">-->
+                        <!--<a class="nav-link active" href="#">-->
+                            <!--<span data-feather="home"></span>-->
+                            <!--Dashboard <span class="sr-only">(current)</span>-->
+                        <!--</a>-->
+                    <!--</li>-->
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/clients">
+                            <span data-feather="file"></span>
+                            Clients <span class="sr-only">(current)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/orders">
+                            <span data-feather="shopping-cart"></span>
+                            Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/employees">
+                            <span data-feather="users"></span>
+                            Employees
+                        </a>
+                    </li>
+                    <!--<li class="nav-item">-->
+                        <!--<a class="nav-link" href="#">-->
+                            <!--<span data-feather="users"></span>-->
+                            <!--Profile-->
+                        <!--</a>-->
+                    <!--</li>-->
+                    <!--<li class="nav-item">-->
+                        <!--<a class="nav-link" href="#">-->
+                            <!--<span data-feather="bar-chart-2"></span>-->
+                            <!--Reports-->
+                        <!--</a>-->
+                    <!--</li>-->
+                    <!--<li class="nav-item">-->
+                        <!--<a class="nav-link" href="#">-->
+                            <!--<span data-feather="layers"></span>-->
+                            <!--Integrations-->
+                        <!--</a>-->
+                    <!--</li>-->
+                </ul>
+
+                <!--<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">-->
+                    <!--<span>Saved reports</span>-->
+                    <!--<a class="d-flex align-items-center text-muted" href="#">-->
+                        <!--<span data-feather="plus-circle"></span>-->
+                    <!--</a>-->
+                <!--</h6>-->
+                <!--<ul class="nav flex-column mb-2">-->
+                    <!--<li class="nav-item">-->
+                        <!--<a class="nav-link" href="#">-->
+                            <!--<span data-feather="file-text"></span>-->
+                            <!--Current month-->
+                        <!--</a>-->
+                    <!--</li>-->
+                    <!--<li class="nav-item">-->
+                        <!--<a class="nav-link" href="#">-->
+                            <!--<span data-feather="file-text"></span>-->
+                            <!--Last quarter-->
+                        <!--</a>-->
+                    <!--</li>-->
+                    <!--<li class="nav-item">-->
+                        <!--<a class="nav-link" href="#">-->
+                            <!--<span data-feather="file-text"></span>-->
+                            <!--Social engagement-->
+                        <!--</a>-->
+                    <!--</li>-->
+                    <!--<li class="nav-item">-->
+                        <!--<a class="nav-link" href="#">-->
+                            <!--<span data-feather="file-text"></span>-->
+                            <!--Year-end sale-->
+                        <!--</a>-->
+                    <!--</li>-->
+                <!--</ul>-->
+            </div>
+        </nav>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+                <h1 class="h2">Clients</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <!--<div class="btn-group mr-2">-->
+                        <!--<button class="btn btn-sm btn-outline-secondary">Share</button>-->
+                    <% if (req.user.username === 'admin') { %>
+                        <a class="btn btn-outline-secondary" href="/clients/new">Create</a>
+                    <% } %>
+                        <!--<button class="btn btn-sm btn-outline-secondary">Create</button>-->
+                    <!--</div>-->
+                    <!--<button class="btn btn-sm btn-outline-secondary dropdown-toggle">-->
+                        <!--<span data-feather="calendar"></span>-->
+                        <!--This week-->
+                    <!--</button>-->
+                </div>
+            </div>
+
+            <!--<canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>-->
+
+            <!--<h2>Clients</h2>-->
+            <% if (alert.length > 0) { %>
+            <div class="alert alert-success" role="alert">
+                <%= alert %>
+            </div>
+            <% } %>
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>First name</th>
+                        <th>Last name</th>
+                        <th>DOB</th>
+                        <th>Gender</th>
+                        <th>City</th>
+                        <th>State</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <% if (req.user.username === 'admin') { %>
+                            <th>Action</th>
+                            <th>Action</th>
+                        <% } %>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% for(var i = 0; i < clients.length; i++) { %>
+                        <tr>
+                            <td><%= clients[i].id %></td>
+                            <td><%= clients[i].firstName %></td>
+                            <td><%= clients[i].lastName %></td>
+                            <td><%= clients[i].dob %></td>
+                            <td><%= clients[i].gender %></td>
+                            <td><%= clients[i].city %></td>
+                            <td><%= clients[i].state %></td>
+                            <td><%= clients[i].email %></td>
+                            <td><%= clients[i].phone %></td>
+                            <% if (req.user.username === 'admin') { %>
+                                <td><a class="btn btn-outline-secondary" href="/clients/<%= clients[i].id %>/edit">Edit</a></td>
+                                <td>
+                                    <form action="/clients/<%= clients[i].id %>?_method=DELETE" method="post">
+                                        <button type="submit" class="btn btn-outline-secondary">Delete</button>
+                                    </form>
+                                </td>
+                            <% } %>
+                        </tr>
+
+                    <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+
+<% include ../partials/footer %>
