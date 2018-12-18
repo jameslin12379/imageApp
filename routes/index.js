@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body,validationResult } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 const passport = require('passport');
 

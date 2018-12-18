@@ -1,3 +1,4 @@
+require("dotenv").config();
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -10,7 +11,7 @@ let passport = require('passport')
 let LocalStrategy = require('passport-local').Strategy;
 let flash = require('connect-flash');
 let methodOverride = require("method-override");
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 
 
@@ -19,10 +20,11 @@ var indexRouter = require('./routes/index');
 
 var app = express();
 var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : 'Pudong67',
-    database : 'imageApp',
+    host     : process.env.RDS_HOSTNAME,
+    user     : process.env.RDS_USERNAME,
+    password : process.env.RDS_PASSWORD,
+    port     : process.env.RDS_PORT,
+    database : process.env.RDS_DB_NAME,
     multipleStatements: true
 });
 
