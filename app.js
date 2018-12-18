@@ -13,7 +13,7 @@ let flash = require('connect-flash');
 let methodOverride = require("method-override");
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;
-
+console.log(process.env);
 
 var indexRouter = require('./routes/index');
 // var usersRouter = require('./routes/users');
