@@ -69,7 +69,7 @@
   border-top-right-radius: 0;
 }
 
-input, button {
+input, button, textarea, .alert, .btn {
   border-radius: 0 !important;
 }
 
@@ -78,5 +78,6 @@ input, button {
 /*}*/
 
 .alert {
-  border-radius: 0;
+    width: 40%;
+    margin: 0 auto;
 }
