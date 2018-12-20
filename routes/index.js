@@ -24,7 +24,6 @@ function isSelf(req, res, next) {
     // CHECK THE USER STORED IN SESSION FOR A CUSTOM VARIABLE
     // you can do this however you want with whatever variables you set up
     if (req.user.id.toString() === req.params.id){
-        console.log('equal');
         return next();
     }
     // IF A USER ISN'T LOGGED IN, THEN REDIRECT THEM SOMEWHERE
@@ -190,15 +189,21 @@ router.get('/update', function(req, res, next) {
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    if (req.isAuthenticated()) {
-        res.render('home/feed', {
-            req: req
-        })
-    }
+    console.log(req.user);
+    console.log(req.isAuthenticated());
     res.render('home/index', {
         req: req,
-        alert: req.flash('alert'),
+        title: 'Imagz.com'
     });
+    // if (req.isAuthenticated()) {
+    //     res.render('home/feed', {
+    //         req: req
+    //     })
+    // }
+    // res.render('home/index', {
+    //     req: req,
+    //     alert: req.flash('alert'),
+    // });
 });
 
 
@@ -369,16 +374,9 @@ router.get('/orders', isAuthenticated, function(req, res){
 
 // GET request for creating a User. NOTE This must come before routes that display User (uses id).
 router.get('/users/new', isNotAuthenticated, function(req, res){
-    // let redirect = '';
-    // if (req.isAuthenticated()) {
-    //     redirect = '/users';
-    // } else {
-    //     redirect = '/login';
-    // }
     res.render('users/new', {
         req: req,
-        title: 'Register',
-        // redirect: redirect,
+        title: 'Sign up',
         errors: req.flash('errors'),
         inputs: req.flash('inputs')
     });
@@ -452,7 +450,7 @@ router.delete('/users/:id', isAuthenticated, isSelf, function(req, res){
 
 // GET request to update User.
 router.get('/users/:id/edit', isAuthenticated, isSelf, function(req, res){
-    connection.query('SELECT email, username, description FROM user WHERE id = ?', [req.params.id], function (error, results, fields) {
+    connection.query('SELECT id, email, username, description FROM user WHERE id = ?', [req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
@@ -465,7 +463,8 @@ router.get('/users/:id/edit', isAuthenticated, isSelf, function(req, res){
         //console.log(results[0].city);
         res.render('users/edit', {
             req: req,
-            results: results[0],
+            title: 'Edit profile',
+            result: results[0],
             errors: req.flash('errors'),
             inputs: req.flash('inputs')
         });
@@ -542,7 +541,7 @@ router.put('/users/:id', isAuthenticated, isSelf, [
 
 // GET request for one User.
 router.get('/users/:id', function(req, res){
-    connection.query('SELECT id, username, email, password, datecreated, description FROM `user` WHERE id = ?', [req.params.id], function (error, results, fields) {
+    connection.query('SELECT id, username, email, datecreated, description FROM `user` WHERE id = ?', [req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
@@ -551,7 +550,8 @@ router.get('/users/:id', function(req, res){
         }
         res.render('users/show', {
             req: req,
-            results: results[0],
+            title: 'Profile',
+            result: results[0],
             alert: req.flash('alert')
         });
     });
@@ -623,6 +623,8 @@ router.get('/topics/:id', function(req, res){
 
 router.get('/login', isNotAuthenticated, function(req, res) {
     res.render('login', {
+        req: req,
+        title: 'Log in',
         errors: req.flash('errors'),
         input: req.flash('input'),
         alert: req.flash('alert')

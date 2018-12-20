@@ -77,7 +77,7 @@ input, button, textarea, .alert, .btn {
   /*height: initial;*/
 /*}*/
 
-.alert {
-    width: 40%;
+.alert-short {
+    width: 33%;
     margin: 0 auto;
 }
