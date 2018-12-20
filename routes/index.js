@@ -5,6 +5,8 @@ const { sanitizeBody } = require('express-validator/filter');
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 const passport = require('passport');
+var multer  = require('multer');
+var upload = multer()
 
 function isAuthenticated(req, res, next) {
     // do any checks you want to in here
@@ -141,59 +143,58 @@ function isNotAuthenticatedOrAdmin(req, res, next) {
 //
 // });
 
-router.get('/update', function(req, res, next) {
-
-    //let imageurl = '/images/animals/wexor-tmg-26886-unsplash.jpg';
-    var imageurl = '/images/travel/';
-    var index = 46;
-    var url = '';
-    for(let i = 0; i < 5; i++){
-
-        switch (i) {
-            case 0:
-                url = 'capturing-the-human-heart-528371-unsplash.jpg';
-                break;
-            case 1:
-                url = 'ishan-seefromthesky-118523-unsplash.jpg';
-                break;
-            case 2:
-                url = 'ishan-seefromthesky-1113277-unsplash.jpg';
-                break;
-            case 3:
-                url = 'nils-nedel-386683-unsplash.jpg';
-                break;
-            case 4:
-                url = 'simon-migaj-421505-unsplash.jpg';
-                break;
-            default:
-                console.log('Sorry, we are out of ');
-        }
-
-        connection.query('UPDATE image SET imageurl = ?, topicid = ? WHERE id = ?', [imageurl + url, 10, index] ,function (error, results, fields) {
-            // error will be an Error if one occurred during the query
-            // results will contain the results of the query
-            // fields will contain information about the returned results fields (if any)
-            if (error) {
-                throw error;
-            }
-
-        });
-        index++;
-    }
-
-
-    res.send('done');
-
-});
+// router.get('/update', function(req, res, next) {
+//
+//     //let imageurl = '/images/animals/wexor-tmg-26886-unsplash.jpg';
+//     var imageurl = '/images/travel/';
+//     var index = 46;
+//     var url = '';
+//     for(let i = 0; i < 5; i++){
+//
+//         switch (i) {
+//             case 0:
+//                 url = 'capturing-the-human-heart-528371-unsplash.jpg';
+//                 break;
+//             case 1:
+//                 url = 'ishan-seefromthesky-118523-unsplash.jpg';
+//                 break;
+//             case 2:
+//                 url = 'ishan-seefromthesky-1113277-unsplash.jpg';
+//                 break;
+//             case 3:
+//                 url = 'nils-nedel-386683-unsplash.jpg';
+//                 break;
+//             case 4:
+//                 url = 'simon-migaj-421505-unsplash.jpg';
+//                 break;
+//             default:
+//                 console.log('Sorry, we are out of ');
+//         }
+//
+//         connection.query('UPDATE image SET imageurl = ?, topicid = ? WHERE id = ?', [imageurl + url, 10, index] ,function (error, results, fields) {
+//             // error will be an Error if one occurred during the query
+//             // results will contain the results of the query
+//             // fields will contain information about the returned results fields (if any)
+//             if (error) {
+//                 throw error;
+//             }
+//
+//         });
+//         index++;
+//     }
+//
+//
+//     res.send('done');
+//
+// });
 
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    console.log(req.user);
-    console.log(req.isAuthenticated());
     res.render('home/index', {
         req: req,
-        title: 'Imagz.com'
+        title: 'Imagz.com',
+        alert: req.flash('alert')
     });
     // if (req.isAuthenticated()) {
     //     res.render('home/feed', {
@@ -444,7 +445,7 @@ router.delete('/users/:id', isAuthenticated, isSelf, function(req, res){
         }
         req.flash('alert', 'Profile deleted.');
         req.logout();
-        res.redirect('/login');
+        res.redirect('/');
     });
 });
 
@@ -558,22 +559,112 @@ router.get('/users/:id', function(req, res){
 });
 
 // GET request for list of all User items.
-router.get('/users', isAuthenticated, isAdmin, function(req, res){
-    connection.query('SELECT * FROM `user`', function (error, results, fields) {
+// router.get('/users', isAuthenticated, isAdmin, function(req, res){
+//     connection.query('SELECT * FROM `user`', function (error, results, fields) {
+//         // error will be an Error if one occurred during the query
+//         // results will contain the results of the query
+//         // fields will contain information about the returned results fields (if any)
+//         if (error) {
+//             throw error;
+//         }
+//         res.render('users/index', {
+//             req: req,
+//             users: results,
+//             title: 'Users',
+//             alert: req.flash('alert')
+//         });
+//     });
+// });
+
+
+router.get('/get', function(req, res){
+    connection.query('SELECT name, id FROM topic', function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
         if (error) {
             throw error;
         }
-        res.render('users/index', {
-            req: req,
-            users: results,
-            title: 'Users',
-            alert: req.flash('alert')
+        console.log(results);
+        res.render('test', {
+            results: results
         });
     });
 });
+
+
+
+/// IMAGE ROUTES ///
+// GET request for creating a Image. NOTE This must come before routes that display User (uses id).
+router.get('/images/new', isAuthenticated, function(req, res){
+    res.render('images/new', {
+        req: req,
+        title: 'Create image',
+        errors: req.flash('errors'),
+        inputs: req.flash('inputs')
+    });
+});
+
+// POST request for creating Image.
+router.post('/images', isAuthenticated, upload.single('file'), [
+        // validation
+        body('title', 'Empty title').not().isEmpty(),
+        body('description', 'Empty description').not().isEmpty(),
+        body('topic', 'Empty topic').not().isEmpty(),
+        body('title', 'Title must be between 5-45 characters.').isLength({min:5, max:45}),
+        body('description', 'Description must be between 5-200 characters.').isLength({min:5, max:200})
+    ], (req, res) => {
+        const errors = validationResult(req);
+        let errorsarray = errors.array();
+        // file is not empty
+        // file size limit (max 30mb)
+        // file type is image
+        if (req.file.size === 0){
+            errorsarray.push({msg: "File cannot be empty."});
+        }
+        if (req.file.mimetype.slice(0, 5) !== 'image'){
+            errorsarray.push({msg: "File type needs to be image."});
+        }
+        if (req.file.size > 30000000){
+            errorsarray.push({msg: "File cannot exceed 30MB."});
+        }
+        if (errorsarray.length !== 0) {
+            // There are errors. Render form again with sanitized values/errors messages.
+            // Error messages can be returned in an array using `errors.array()`.
+            req.flash('errors', errorsarray);
+            req.flash('inputs', {title: req.body.title, description: req.body.description, topic: req.body.topic});
+            res.redirect('/images/new');
+        }
+        else {
+            // const redirect = req.query.redirect;
+            // Data from form is valid.
+            sanitizeBody('title').trim().escape();
+            sanitizeBody('description').trim().escape();
+            sanitizeBody('topic').trim().escape();
+            const title = req.body.title;
+            const description = req.body.description;
+            const topic = req.body.topic;
+            
+            bcrypt.hash(password, saltRounds, function(err, hash) {
+                // Store hash in your password DB.
+                if (err) {
+                    throw error;
+                }
+                connection.query('INSERT INTO user (email, username, password) VALUES (?, ?, ?)', [email, username, hash], function (error, results, fields) {
+                    // error will be an Error if one occurred during the query
+                    // results will contain the results of the query
+                    // fields will contain information about the returned results fields (if any)
+                    if (error) {
+                        throw error;
+                    }
+                    req.flash('alert', 'You have successfully registered.');
+                    res.redirect('/login');
+                });
+            });
+        }
+    }
+);
+
 
 /// TOPIC ROUTES ///
 // GET request for list of all User items.

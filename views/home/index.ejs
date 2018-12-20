@@ -33,6 +33,11 @@
     <!--</header>-->
 
     <main role="main" class="inner cover">
+        <% if (alert.length > 0) { %>
+        <div class="alert alert-success alert-short mb-3" role="alert">
+            <%= alert %>
+        </div>
+        <% } %>
         <% if (!(req.isAuthenticated())) { %>
         <h1 class="cover-heading">Imagz</h1>
         <p class="lead">Upload something today.</p>
