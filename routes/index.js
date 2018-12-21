@@ -6,7 +6,12 @@ const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 const passport = require('passport');
 var multer  = require('multer');
-var upload = multer()
+var upload = multer();
+var AWS = require('aws-sdk');
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWSAccessKeyId,
+    secretAccessKey: process.env.AWSSecretKey
+});
 
 function isAuthenticated(req, res, next) {
     // do any checks you want to in here
@@ -644,23 +649,50 @@ router.post('/images', isAuthenticated, upload.single('file'), [
             const title = req.body.title;
             const description = req.body.description;
             const topic = req.body.topic;
-            
-            bcrypt.hash(password, saltRounds, function(err, hash) {
-                // Store hash in your password DB.
+            // upload image to AWS, get imageurl, insert row into DB with title, description, topic, imageurl, currentuserid, and
+            // meta data fields for image (size, type, etc...)
+            console.log(req.file);
+            const uploadParams = {
+                Bucket: 'imageappbucket', // pass your bucket name
+                Key: 'images/' + req.file.originalname, // file will be saved as testBucket/contacts.csv
+                Body: req.file.buffer,
+                ContentType: req.file.mimetype
+            };
+            s3.upload (uploadParams, function (err, data) {
                 if (err) {
-                    throw error;
+                    console.log("Error", err);
+                } if (data) {
+                    connection.query('INSERT INTO image (title, description, imageurl, userid, topicid, originalname, ' +
+                        'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [title, description, data.Location,
+                    req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
+                        // error will be an Error if one occurred during the query
+                        // results will contain the results of the query
+                        // fields will contain information about the returned results fields (if any)
+                        if (error) {
+                            throw error;
+                        }
+                        req.flash('alert', 'Image created.');
+                        res.redirect('/');
+                    });
+                    // console.log("Upload Success", data.Location);
                 }
-                connection.query('INSERT INTO user (email, username, password) VALUES (?, ?, ?)', [email, username, hash], function (error, results, fields) {
-                    // error will be an Error if one occurred during the query
-                    // results will contain the results of the query
-                    // fields will contain information about the returned results fields (if any)
-                    if (error) {
-                        throw error;
-                    }
-                    req.flash('alert', 'You have successfully registered.');
-                    res.redirect('/login');
-                });
             });
+            // bcrypt.hash(password, saltRounds, function(err, hash) {
+            //     // Store hash in your password DB.
+            //     if (err) {
+            //         throw error;
+            //     }
+            //     connection.query('INSERT INTO user (email, username, password) VALUES (?, ?, ?)', [email, username, hash], function (error, results, fields) {
+            //         // error will be an Error if one occurred during the query
+            //         // results will contain the results of the query
+            //         // fields will contain information about the returned results fields (if any)
+            //         if (error) {
+            //             throw error;
+            //         }
+            //         req.flash('alert', 'You have successfully registered.');
+            //         res.redirect('/login');
+            //     });
+            // });
         }
     }
 );
