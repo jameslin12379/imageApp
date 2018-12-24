@@ -12,6 +12,7 @@ const s3 = new AWS.S3({
     accessKeyId: process.env.AWSAccessKeyId,
     secretAccessKey: process.env.AWSSecretKey
 });
+var moment = require('moment');
 
 function isAuthenticated(req, res, next) {
     // do any checks you want to in here
@@ -193,12 +194,11 @@ function isNotAuthenticatedOrAdmin(req, res, next) {
 //
 // });
 
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
     res.render('home/index', {
         req: req,
-        title: 'Imagz.com',
+        title: 'GIF.com',
         alert: req.flash('alert')
     });
     // if (req.isAuthenticated()) {
@@ -211,170 +211,6 @@ router.get('/', function(req, res, next) {
     //     alert: req.flash('alert'),
     // });
 });
-
-
-
-/// ORDERS ROUTES ///
-
-// GET request for creating a Order. NOTE This must come before routes that display Order (uses id).
-router.get('/orders/new', isAuthenticated, isAdmin, function(req, res){
-    res.render('orders/new', {
-        req: req,
-        title: 'Create order',
-        errors: req.flash('errors'),
-        inputs: req.flash('inputs')
-    });
-});
-
-// POST request for creating Order.
-router.post('/orders', isAuthenticated, isAdmin, [
-    // validation
-    body('amount', 'Empty amount').not().isEmpty(),
-    body('date', 'Empty date').not().isEmpty(),
-    body('description', 'Empty description').not().isEmpty(),
-
-    body('description', 'Description must be between 5-45 characters.').isLength({min:5, max:45}),
-
-    body('date', 'Invalid date').isISO8601(),
-
-], (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        // There are errors. Render form again with sanitized values/errors messages.
-        // Error messages can be returned in an array using `errors.array()`.
-        req.flash('errors', errors.array());
-        req.flash('inputs', req.body );
-        res.redirect('/orders/new');
-        // res.render('users/new', {
-        //     errors: errors.array(),
-        //     email: req.body.email,
-        //     username: req.body.username
-        // });
-    }
-    else {
-        // Data from form is valid.
-        sanitizeBody('amount').trim().escape();
-        sanitizeBody('date').trim().escape();
-        sanitizeBody('description').trim().escape();
-        const amount = req.body.amount;
-        const date = req.body.date;
-        const description = req.body.description;
-        console.log(amount,date,description);
-        connection.query('INSERT INTO orders (amount, date, description) VALUES (?, ?, ?)', [amount, date, description], function (error, results, fields) {
-            // error will be an Error if one occurred during the query
-            // results will contain the results of the query
-            // fields will contain information about the returned results fields (if any)
-            if (error) {
-                throw error;
-            }
-            req.flash('alert', 'Order created.');
-            res.redirect('/orders');
-        });
-    }
-});
-
-// DELETE request to delete Order.
-router.delete('/orders/:id', isAuthenticated, isAdmin, function(req, res){
-    connection.query('DELETE FROM orders WHERE id = ?', [req.params.id], function (error, results, fields) {
-        // error will be an Error if one occurred during the query
-        // results will contain the results of the query
-        // fields will contain information about the returned results fields (if any)
-        if (error) {
-            throw error;
-        }
-        req.flash('alert', 'Order deleted.');
-        res.redirect('/orders');
-    });
-});
-
-// GET request to update Order.
-router.get('/orders/:id/edit', isAuthenticated, isAdmin, function(req, res){
-    connection.query('SELECT amount, date, description FROM orders WHERE id = ?', [req.params.id], function (error, results, fields) {
-        // error will be an Error if one occurred during the query
-        // results will contain the results of the query
-        // fields will contain information about the returned results fields (if any)
-        if (error) {
-            throw error;
-        }
-        results[0].date = JSON.stringify(results[0].date).slice(1,11);
-        //results[0].dob = s.slice(6,8) + '-' + s.slice(9,11) + '-' + s.slice(1,5);
-        // console.log(results[0].dob);
-        //console.log(results[0].city);
-
-        res.render('orders/edit', {
-            req: req,
-            data: results,
-            id: req.params.id,
-            title: 'Edit order',
-            errors: req.flash('errors'),
-            inputs: req.flash('inputs')
-        });
-    });
-});
-
-// PUT request to update Order.
-router.put('/orders/:id', isAuthenticated, isAdmin, [
-    // validation
-    body('amount', 'Empty amount').not().isEmpty(),
-    body('date', 'Empty date').not().isEmpty(),
-    body('description', 'Empty description').not().isEmpty(),
-
-    body('description', 'Description must be between 5-45 characters.').isLength({min:5, max:45}),
-
-    body('date', 'Invalid date').isISO8601(),
-], (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        // There are errors. Render form again with sanitized values/errors messages.
-        // Error messages can be returned in an array using `errors.array()`.
-        req.flash('errors', errors.array());
-        req.flash('inputs', req.body );
-        res.redirect(req._parsedOriginalUrl.pathname + '/edit');
-        // res.render('users/new', {
-        //     errors: errors.array(),
-        //     email: req.body.email,
-        //     username: req.body.username
-        // });
-    }
-    else {
-        // Data from form is valid.
-        sanitizeBody('amount').trim().escape();
-        sanitizeBody('date').trim().escape();
-        sanitizeBody('description').trim().escape();
-        const amount = req.body.amount;
-        const date = req.body.date;
-        const description = req.body.description;
-        connection.query('UPDATE orders SET amount = ?, date = ?, description = ? WHERE id = ?', [amount, date, description, req.params.id], function (error, results, fields) {
-            // error will be an Error if one occurred during the query
-            // results will contain the results of the query
-            // fields will contain information about the returned results fields (if any)
-            if (error) {
-                throw error;
-            }
-            req.flash('alert', 'Order edited.');
-            res.redirect('/orders');
-        });
-    }
-});
-
-// GET request for list of all Order items.
-router.get('/orders', isAuthenticated, function(req, res){
-    connection.query('SELECT * FROM `orders`', function (error, results, fields) {
-        // error will be an Error if one occurred during the query
-        // results will contain the results of the query
-        // fields will contain information about the returned results fields (if any)
-        if (error) {
-            throw error;
-        }
-        res.render('orders/index', {
-            req: req,
-            orders: results,
-            title: 'Orders',
-            alert: req.flash('alert')
-        });
-    });
-});
-
 
 /// USERS ROUTES ///
 
@@ -547,17 +383,20 @@ router.put('/users/:id', isAuthenticated, isSelf, [
 
 // GET request for one User.
 router.get('/users/:id', function(req, res){
-    connection.query('SELECT id, username, email, datecreated, description FROM `user` WHERE id = ?', [req.params.id], function (error, results, fields) {
+    connection.query('SELECT id, username, email, datecreated, description, imageurl FROM `user` WHERE id = ?; SELECT id, imageurl FROM ' +
+        'image WHERE userid = ? ORDER BY datecreated DESC LIMIT 9', [req.params.id, req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
         if (error) {
             throw error;
         }
+        console.log(results);
         res.render('users/show', {
             req: req,
             title: 'Profile',
-            result: results[0],
+            results: results,
+            moment: moment,
             alert: req.flash('alert')
         });
     });
@@ -600,11 +439,11 @@ router.get('/get', function(req, res){
 
 
 /// IMAGE ROUTES ///
-// GET request for creating a Image. NOTE This must come before routes that display User (uses id).
+// GET request for creating a Image. NOTE This must come before routes that display Image (uses id).
 router.get('/images/new', isAuthenticated, function(req, res){
     res.render('images/new', {
         req: req,
-        title: 'Create image',
+        title: 'Upload a photo',
         errors: req.flash('errors'),
         inputs: req.flash('inputs')
     });
@@ -613,11 +452,11 @@ router.get('/images/new', isAuthenticated, function(req, res){
 // POST request for creating Image.
 router.post('/images', isAuthenticated, upload.single('file'), [
         // validation
-        body('title', 'Empty title').not().isEmpty(),
-        body('description', 'Empty description').not().isEmpty(),
+        // body('title', 'Empty title').not().isEmpty(),
+        // body('description', 'Empty description').not().isEmpty(),
         body('topic', 'Empty topic').not().isEmpty(),
-        body('title', 'Title must be between 5-45 characters.').isLength({min:5, max:45}),
-        body('description', 'Description must be between 5-200 characters.').isLength({min:5, max:200})
+        // body('title', 'Title must be between 5-45 characters.').isLength({min:5, max:45}),
+        // body('description', 'Description must be between 5-200 characters.').isLength({min:5, max:200})
     ], (req, res) => {
         const errors = validationResult(req);
         let errorsarray = errors.array();
@@ -637,21 +476,21 @@ router.post('/images', isAuthenticated, upload.single('file'), [
             // There are errors. Render form again with sanitized values/errors messages.
             // Error messages can be returned in an array using `errors.array()`.
             req.flash('errors', errorsarray);
-            req.flash('inputs', {title: req.body.title, description: req.body.description, topic: req.body.topic});
+            req.flash('inputs', {topic: req.body.topic});
             res.redirect('/images/new');
         }
         else {
             // const redirect = req.query.redirect;
             // Data from form is valid.
-            sanitizeBody('title').trim().escape();
-            sanitizeBody('description').trim().escape();
+            // sanitizeBody('title').trim().escape();
+            // sanitizeBody('description').trim().escape();
             sanitizeBody('topic').trim().escape();
-            const title = req.body.title;
-            const description = req.body.description;
+            // const title = req.body.title;
+            // const description = req.body.description;
             const topic = req.body.topic;
             // upload image to AWS, get imageurl, insert row into DB with title, description, topic, imageurl, currentuserid, and
             // meta data fields for image (size, type, etc...)
-            console.log(req.file);
+            // console.log(req.file);
             const uploadParams = {
                 Bucket: 'imageappbucket', // pass your bucket name
                 Key: 'images/' + req.file.originalname, // file will be saved as testBucket/contacts.csv
@@ -662,8 +501,8 @@ router.post('/images', isAuthenticated, upload.single('file'), [
                 if (err) {
                     console.log("Error", err);
                 } if (data) {
-                    connection.query('INSERT INTO image (title, description, imageurl, userid, topicid, originalname, ' +
-                        'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [title, description, data.Location,
+                    connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
+                        'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
                     req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
                         // error will be an Error if one occurred during the query
                         // results will contain the results of the query
@@ -671,31 +510,34 @@ router.post('/images', isAuthenticated, upload.single('file'), [
                         if (error) {
                             throw error;
                         }
-                        req.flash('alert', 'Image created.');
+                        req.flash('alert', 'Photo uploaded.');
                         res.redirect('/');
                     });
                     // console.log("Upload Success", data.Location);
                 }
             });
-            // bcrypt.hash(password, saltRounds, function(err, hash) {
-            //     // Store hash in your password DB.
-            //     if (err) {
-            //         throw error;
-            //     }
-            //     connection.query('INSERT INTO user (email, username, password) VALUES (?, ?, ?)', [email, username, hash], function (error, results, fields) {
-            //         // error will be an Error if one occurred during the query
-            //         // results will contain the results of the query
-            //         // fields will contain information about the returned results fields (if any)
-            //         if (error) {
-            //             throw error;
-            //         }
-            //         req.flash('alert', 'You have successfully registered.');
-            //         res.redirect('/login');
-            //     });
-            // });
         }
     }
 );
+
+// GET request for one Image.
+router.get('/images/:id', function(req, res){
+    connection.query('select i.id, i.imageurl, i.datecreated, i.userid, i.topicid, u.username, t.name from image as i inner join user as u on i.userid = u.id inner join topic as t on i.topicid = t.id where i.id = ?', [req.params.id], function (error, results, fields) {
+        // error will be an Error if one occurred during the query
+        // results will contain the results of the query
+        // fields will contain information about the returned results fields (if any)
+        if (error) {
+            throw error;
+        }
+        res.render('images/show', {
+            req: req,
+            title: 'Photo',
+            result: results[0],
+            moment: moment,
+            alert: req.flash('alert')
+        });
+    });
+});
 
 
 /// TOPIC ROUTES ///

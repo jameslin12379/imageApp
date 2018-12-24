@@ -1,0 +1,53 @@
+<% include ../partials/header %>
+
+<!--<!doctype html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+    <!--<meta charset="utf-8">-->
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">-->
+    <!--<meta name="description" content="">-->
+    <!--<meta name="author" content="">-->
+    <!--<link rel="icon" href="https://getbootstrap.com/favicon.ico">-->
+
+    <!--<title>Company</title>-->
+
+    <!--&lt;!&ndash; Bootstrap core CSS &ndash;&gt;-->
+    <!--<link href="https://getbootstrap.com/docs/4.1/dist/css/bootstrap.min.css" rel="stylesheet">-->
+
+    <!--&lt;!&ndash; Custom styles for this template &ndash;&gt;-->
+    <!--<link href="https://getbootstrap.com/docs/4.1/examples/cover/cover.css" rel="stylesheet">-->
+<!--</head>-->
+
+<!--<body class="text-center">-->
+
+<!--<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">-->
+    <!--<header class="masthead mb-auto">-->
+        <!--<div class="inner">-->
+            <!--<a href="/"><h3 class="masthead-brand">Imagz</h3></a>-->
+            <!--<nav class="nav nav-masthead justify-content-center">-->
+                <!--<a class="nav-link" href="/topics">Explore</a>-->
+                <!--<a class="nav-link" href="/users/new">Sign up</a>-->
+                <!--<a class="nav-link" href="/login">Log in</a>-->
+            <!--</nav>-->
+        <!--</div>-->
+    <!--</header>-->
+
+    <main role="main" class="inner cover">
+        <% if (alert.length > 0) { %>
+        <div class="alert alert-success alert-short mb-3" role="alert">
+            <%= alert %>
+        </div>
+        <% } %>
+        <% if (!(req.isAuthenticated())) { %>
+        <h1 class="cover-heading">GIF</h1>
+        <p class="lead">Upload something today.</p>
+        <p class="lead">
+            <a href="/topics" class="btn btn-lg btn-secondary">Explore</a>
+        </p>
+        <% } else { %>
+        <h1 class="cover-heading">Feed</h1>
+        <% } %>
+    </main>
+
+<% include ../partials/footer %>
+

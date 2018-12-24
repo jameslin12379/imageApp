@@ -1,0 +1,137 @@
+Routes
+
+/ GET
+->For logged out users, render index.ejs with a jumbotron.
+->For logged in users, render index.ejs with feed and ad sections.
+/login GET
+->For logged out users, render login.ejs.
+->For logged in users, render 403.
+/login POST
+->For logged out users, process form input with server validation and if wrong redirect
+to login.ejs with errors and inputs. Else, establish session with cookie and redirect user to
+/.
+->For logged in users, render 403.
+/logout GET
+->For logged out users, redirect to /login.
+->For logged in users, logout and redirect to /login.
+/403 GET
+->For both types of users, render 403.ejs.
+/404 GET
+->For both types of users, render 404.ejs.
+
+/users GET
+->Disabled. (Listing all users is unnecessary for regular users but suitable for admins)
+/users/id GET
+->For logged out users, render users/show.ejs.
+->For logged in users, render users/show.ejs.
+->If visiting user is same as requested user resource, display edit/delete buttons on page.
+/users/new GET
+->For logged out users, render users/new.ejs.
+->For logged in users, render 403.ejs.
+/users POST
+->For logged out users, process form input with server validation and if wrong redirect to /users/new.ejs
+with errors and inputs. Else, insert row into DB and redirect user to /login.
+->For logged in users, render 403.ejs.
+/users/id/edit GET
+->For logged out users, render 403.ejs.
+->For logged in users, if visiting user is same as requested user resource, render users/edit.ejs else
+render 403.ejs.
+/users/id PUT
+->For logged out users, render 403.ejs.
+->For logged in users, if visiting user is same as requested user resource, process form input with server validation
+ and if wrong redirect to /users/edit.ejs else update row into DB and redirect user to user profile page.
+/users/id DELETE
+->For logged out users, render 403.ejs.
+->For logged in users, if visiting user is same as requested user resource, delete row from DB and redirect to / else
+render 403.ejs.
+
+/images GET
+->Disabled. (Listing all images is unnecessary for regular users but suitable for admins)
+/images/id GET
+->For logged out users, render images/show.ejs.
+->For logged in users, render images/show.ejs.
+/images/new GET
+->For logged out users, redirect to /login.
+->For logged in users, redirect to /images/new.
+/images POST
+->For logged out users, redirect to /login.
+->For logged in users, process form input with server validation and if wrong redirect to /images/new.ejs with
+errors and inputs. Else, upload image to AWS S3, get imageurl and save it along with other data into DB, redirect to /.
+/images/id/edit GET
+->Disabled. (Editing an image is unnecessary.)
+/images/id PUT
+->Disabled. (Editing an image is unnecessary.)
+/images/id DELETE
+->For logged out users, redirect to /login.
+->For logged in users, delete image from DB and redirect to user profile page.
+
+/topics GET
+->For logged out users, render topics/index.ejs.
+->For logged in users, render topics/index.ejs.
+/topics/id GET
+->For logged out users, render topics/show.ejs.
+->For logged in users, render topics/show.ejs but with a follow/unfollow button depending on
+whether the current user has followed the topic or not.
+/topics/new GET
+->Disabled. (Adding topic is limited to admin only.)
+/topics POST
+->Disabled. (Adding topic is limited to admin only.)
+/topics/id/edit GET
+->Disabled. (Editing topic is limited to admin only.)
+/topics/id PUT
+->Disabled. (Editing topic is limited to admin only.)
+/topics/id DELETE
+->Disabled. (Deleting topic is limited to admin only.)
+
+/topicfollowings GET
+->Disabled. (Listing all topicfollowings is unnecessary for regular users but suitable for admins.)
+/topicfollowings/id GET
+->Disabled. (Getting information about a single topicfollowing is uncessary for regular users but suitable for admins.)
+/topicfollowings/new GET
+->Replaced by AJAX.
+/topicfollowings POST
+->For logged out users, redirect to /login.
+->For logged in users, process AJAX post request, add new topicfollowing row into DB and update follow/unfollow button value
+on client side.
+/topicfollowings/id/edit GET
+->Disabled. (Editing topicfollowing is unnecessary.)
+/topicfollowings/id PUT
+->Disabled. (Editing topicfollowing is unnecessary.)
+/topicfollowings/id DELETE
+->For logged out users, redirect to /login.
+->For logged in users, process AJAX delete request, remove topicfollowing from DB and update follow/unfollow button value on
+client side.
+
+Controllers
+For each route, a controller is defined.
+
+Models
+For this project, no model is defined. No ORM.
+Directly accessing the database through SQL and sqldriver.
+
+Database
+MySQL
+
+Tables
+-user
+-image
+-topic
+-topicfollowing
+
+Views
+Find a theme from WordPress and tweak it to get needed html, css, and javascript effects.
+
+Git/GitHub
+Push code to GitHub after local development is done.
+
+Deployment
+Setup AWS beanstalk (environment with EC2), RDS, and S3 and connect them.
+Verify app is working online.
+
+
+
+
+
+
+
+
