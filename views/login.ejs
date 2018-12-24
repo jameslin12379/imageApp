@@ -25,13 +25,13 @@
                                             <div class="et_pb_newsletter_form">
                                                 <form action="/login" method="post">
                                                     <% if (alert.length > 0) { %>
-                                                    <div class="alert alert-success mb-3" role="alert">
+                                                    <div class="et_pb_newsletter_result et_pb_newsletter_error show text-center mb-1 fs-18">
                                                         <%= alert %>
                                                     </div>
                                                     <% } %>
                                                     <% if (errors.length > 0) { %>
                                                     <% for(var i = 0; i < errors.length; i++) { %>
-                                                    <div class="et_pb_newsletter_result et_pb_newsletter_error show text-center mb-1 fs-18 red" role="alert">
+                                                    <div class="et_pb_newsletter_result et_pb_newsletter_error show text-center mb-1 fs-18 red">
                                                         <%= errors[i] %>
                                                     </div>
                                                     <% } %>

@@ -1,61 +1,46 @@
 <% include ../partials/header %>
 
-    <main role="main" class="inner cover mt-5 mb-5">
-        <% if (alert.length > 0) { %>
-        <div class="alert alert-success alert-short mb-3" role="alert">
-            <%= alert %>
-        </div>
-        <% } %>
-        <!--<h1 class="cover-heading">Profile</h1>-->
-        <img class="rounded-circle mb-3" src="<%= results[0][0].imageurl %>" alt="Generic placeholder image" width="140" height="140">
-        <p class="lead"><%= results[0][0].username %></p>
-        <p class="lead"><%= results[0][0].email %></p>
-        <p class="lead">Joined <%= moment(results[0][0].datecreated).format('LL') %></p>
-        <p class="lead"><%= results[0][0].description %></p>
+<div id="et-main-area">
+    <div id="main-content">
+        <article id="post-209034" class="post-209034 page type-page status-publish hentry">
+            <div class="entry-content">
+                <div id="et-boc" class="et-boc">
+                    <div class="et_builder_inner_content et_pb_gutters3">
+                        <div class="et_pb_section et_pb_section_1 et_section_specialty pt-60">
+                            <div class="et_pb_row">
+                                <div class="et_pb_column et_pb_column_1_3 et_pb_column_3    et_pb_css_mix_blend_mode_passthrough et_pb_column_single">
+                                    <div class="et_pb_module et_pb_blurb et_pb_blurb_5 et_pb_bg_layout_light  et_pb_text_align_center  et_pb_blurb_position_top box-shadow-none" style="">
+                                        <div class="et_pb_blurb_content">
+                                            <div class="et_pb_main_blurb_image"><span class="et_pb_image_wrap"><img src="<%= results[0][0].imageurl %>" alt="" class="et-waypoint et_pb_animation_top et-animated"></span></div>
+                                            <div class="et_pb_blurb_container">
+                                                <h4 class="et_pb_module_header"><%= results[0][0].username %></h4>
+                                                <div class="et_pb_blurb_description">
+                                                    <strong>Joined <%= moment(results[0][0].datecreated).format('LL') %></strong><p></p>
+                                                    <p><%= results[0][0].description %></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-        <% if (req.user === undefined) { %>
-        <% } else if (req.user.id !== results[0][0].id) { %>
-        <% } else { %>
-        <!--<p class="lead">-->
-        <div class="d-flex justify-content-center mb-3">
-            <a class="btn btn-outline-secondary mr-3" href="/users/<%= results[0][0].id %>/edit">Edit</a>
-            <form action="/users/<%= results[0][0].id %>?_method=DELETE" method="post">
-                <button type="submit" class="btn btn-outline-secondary">Delete</button>
-            </form>
-        </div>
-        <!--</p>-->
-        <% } %>
-
-        <p class="lead">Photos</p>
-        <div class="album">
-            <div class="container">
-
-                <div class="row">
-                    <% for(var i=0; i < results[1].length; i++) { %>
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow-sm">
-                            <a href="/images/<%= results[1][i].id %>"><img class="card-img-top" src="<%= results[1][i].imageurl %>" alt="Card image cap"></a>
-                            <div class="card-body">
-                                <!--<p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>-->
-
-                                <% if (req.user === undefined) { %>
-                                <% } else if (req.user.id !== results[0][0].id) { %>
-                                <% } else { %>
-                                <div class="d-flex justify-content-between align-items-center">
-                                        <a class="btn btn-outline-secondary" href="/images/<%= results[1][i].id %>/edit">Edit</a>
-                                        <form action="/images/<%= results[1][i].id %>?_method=DELETE" method="post">
-                                            <button type="submit" class="btn btn-outline-secondary">Delete</button>
+                                    <% if (req.user === undefined) { %>
+                                    <% } else if (req.user.id !== results[0][0].id) { %>
+                                    <% } else { %>
+                                    <div class="et_pb_button_module_wrapper et_pb_button_2_wrapper et_pb_button_alignment_center et_pb_module flex justify">
+                                        <a class="et_pb_button et_pb_custom_button_icon et_pb_button_2 et_hover_enabled et_pb_bg_layout_light pd-5-15 mr-1" href="/users/<%= results[0][0].id %>/edit">Edit</a>
+                                        <form action="/users/<%= results[0][0].id %>?_method=DELETE" method="post">
+                                            <button type="submit" class="submit-button ht-100">Delete</button>
                                         </form>
-                                    <!--<small class="text-muted">9 mins</small>-->
+                                    </div>
+                                    <% } %>
                                 </div>
-                                <% } %>
                             </div>
-                        </div>
-                    </div>
-                    <% } %>
-                </div>
-            </div>
-        </div>
-    </main>
+                        </div>  </div>
+                </div> </div>
+        </article>
+    </div>
+
+</div>
+
+
 
 <% include ../partials/footer %>

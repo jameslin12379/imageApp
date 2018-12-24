@@ -29,8 +29,8 @@ to /login with errors and inputs. Else, establish session with cookie and redire
 ->For logged out users, render users/new.ejs.
 ->For logged in users, render 403.ejs.
 /users POST
-->For logged out users, process form input with server validation and if wrong redirect to /users/new.ejs
-with errors and inputs. Else, insert row into DB and redirect user to /login.
+->For logged out users, process form input with server validation and if wrong redirect to /users/new
+with errors and inputs. Else, sanitize inputs, hash password, insert row (all fields other than password field and hash) into DB, and redirect to /login with success message.
 ->For logged in users, render 403.ejs.
 /users/id/edit GET
 ->For logged out users, render 403.ejs.

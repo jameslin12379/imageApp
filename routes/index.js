@@ -227,15 +227,15 @@ router.get('/users/new', isNotAuthenticated, function(req, res){
 // POST request for creating User.
 router.post('/users', isNotAuthenticated, [
         // validation
-        body('email', 'Empty email').not().isEmpty(),
-        body('password', 'Empty password').not().isEmpty(),
-        body('username', 'Empty username').not().isEmpty(),
+        body('email', 'Empty email.').not().isEmpty(),
+        body('password', 'Empty password.').not().isEmpty(),
+        body('username', 'Empty username.').not().isEmpty(),
         body('email', 'Email must be between 5-100 characters.').isLength({min:5, max:100}),
         body('password', 'Password must be between 5-45 characters.').isLength({min:5, max:45}),
         body('username', 'Username must be between 5-45 characters.').isLength({min:5, max:45}),
-        body('email', 'Invalid email').isEmail(),
+        body('email', 'Invalid email.').isEmail(),
         body('password', 'Password must contain one lowercase character, one uppercase character, a number, and ' +
-            'a special character').matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.* )(?=.*[^a-zA-Z0-9]).{8,}$/, "i")
+            'a special character.').matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.* )(?=.*[^a-zA-Z0-9]).{8,}$/, "i")
     ], (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
