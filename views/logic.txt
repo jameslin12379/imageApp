@@ -8,7 +8,7 @@ Routes
 ->For logged in users, render 403.
 /login POST
 ->For logged out users, process form input with server validation and if wrong redirect
-to login.ejs with errors and inputs. Else, establish session with cookie and redirect user to
+to /login with errors and inputs. Else, establish session with cookie and redirect user to
 /.
 ->For logged in users, render 403.
 /logout GET

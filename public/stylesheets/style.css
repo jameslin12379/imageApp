@@ -2,10 +2,44 @@
     display: none;
 }
 
+.show {
+    display: block;
+}
+
+.text-center {
+    text-align: center;
+}
+
 .pb-none {
     padding-bottom: 0!important;
 }
 
 .pt-none {
     padding-top: 0!important;
+}
+
+.mb-1 {
+    margin-bottom: 1rem;
+}
+
+.fs-18 {
+    font-size: 18px;
+}
+
+.red {
+    color: red;
+}
+
+.submit-button {
+    padding: 10px;
+    color: #ffffff!important;
+    border-width: 10px!important;
+    border-color: #09e1c0;
+    border-radius: 100px;
+    letter-spacing: 1px;
+    font-size: 16px;
+    font-weight: 700!important;
+    text-transform: uppercase!important;
+    background-color: #09e1c0;
+    box-shadow: 0px 10px 50px 5px rgba(9,225,192,0.3);
 }
