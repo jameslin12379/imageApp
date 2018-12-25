@@ -8,7 +8,7 @@
                     <div class="et_builder_inner_content et_pb_gutters3">
                         <div class="et_pb_section et_pb_section_1 et_section_specialty pt-60">
                             <div class="et_pb_row">
-                                <div class="et_pb_column et_pb_column_1_3 et_pb_column_3    et_pb_css_mix_blend_mode_passthrough et_pb_column_single">
+                                <div class="et_pb_column et_pb_column_1_3 et_pb_column_3    et_pb_css_mix_blend_mode_passthrough et_pb_column_single w-100">
                                     <div class="et_pb_module et_pb_blurb et_pb_blurb_5 et_pb_bg_layout_light  et_pb_text_align_center  et_pb_blurb_position_top box-shadow-none" style="">
                                         <div class="et_pb_blurb_content">
                                             <div class="et_pb_main_blurb_image"><span class="et_pb_image_wrap"><img src="<%= results[0][0].imageurl %>" alt="" class="et-waypoint et_pb_animation_top et-animated"></span></div>
@@ -34,7 +34,45 @@
                                     <% } %>
                                 </div>
                             </div>
-                        </div>  </div>
+
+                        </div>
+                        <div class="et_pb_section et_pb_section_1 et_section_regular">
+                            <div class="et_pb_row et_pb_row_0">
+                                <div class="et_pb_column et_pb_column_4_4 et_pb_column_0    et_pb_css_mix_blend_mode_passthrough et-last-child">
+                                    <div class="et_pb_module et_pb_shop et_pb_shop_0  et_pb_text_align_center">
+                                        <div class="woocommerce columns-3 "><ul class="products columns-3">
+                                                <% for(var i=0; i < results[1].length; i++) { %>
+                                                <li class="post-3349 product type-product status-publish has-post-thumbnail product_cat-kitchen product_cat-shop product_tag-retro first instock shipping-taxable purchasable product-type-simple">
+                                                    <a href="/images/<%= results[1][i].id %>" class="woocommerce-LoopProduct-link woocommerce-loop-product__link"><img width="400" height="400" src="<%= results[1][i].imageurl %>" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="">
+                                                    </a></li>
+                                                <% } %>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="et_pb_section et_pb_section_1 et_section_regular">
+                             <div class="et_pb_row et_pb_row_3">
+                                <div class="et_pb_column et_pb_column_1_3 et_pb_column_3    et_pb_css_mix_blend_mode_passthrough">
+                                    <div class="et_pb_module et_pb_blurb et_pb_blurb_0 et_pb_bg_layout_light  et_pb_text_align_left  et_pb_blurb_position_left" style="">
+                                        <div class="et_pb_blurb_content">
+                                            <div class="et_pb_main_blurb_image"><a href="#"><span class="et_pb_image_wrap"><img src="https://www.elegantthemes.com/layouts/wp-content/uploads/2017/12/coding-icon_15.jpg" alt="" class="et-waypoint et_pb_animation_top et-animated"></span></a></div>
+                                            <div class="et_pb_blurb_container">
+                                                <h4 class="et_pb_module_header"><a href="#">100+ Interactive Courses</a></h4>
+                                                <div class="et_pb_blurb_description">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ornare in neque rutrum imperdiet. Quisque ante ante, lobortis at dapibus et, congue a orci.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div> </div>
         </article>
     </div>
