@@ -1,5 +1,6 @@
 Routes
 
+REGULAR ROUTES (HTML)
 / GET
 ->For logged out users, render index.ejs with a jumbotron.
 ->For logged in users, render index.ejs with feed and ad sections.
@@ -101,6 +102,11 @@ on client side.
 ->For logged out users, redirect to /login.
 ->For logged in users, process AJAX delete request, remove topicfollowing from DB and update follow/unfollow button value on
 client side.
+
+API ROUTES (JSON)
+-same as above routes except returning JSON data
+-in case of our app,
+-> /users/
 
 Controllers
 For each route, a controller is defined.
