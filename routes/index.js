@@ -259,7 +259,7 @@ router.post('/users', isNotAuthenticated, [
                 if (err) {
                     throw error;
                 }
-                connection.query('INSERT INTO user (email, username, password) VALUES (?, ?, ?)', [email, username, hash], function (error, results, fields) {
+                connection.query('INSERT INTO User (email, username, password) VALUES (?, ?, ?)', [email, username, hash], function (error, results, fields) {
                     // error will be an Error if one occurred during the query
                     // results will contain the results of the query
                     // fields will contain information about the returned results fields (if any)
@@ -277,7 +277,7 @@ router.post('/users', isNotAuthenticated, [
 
 // DELETE request to delete User.
 router.delete('/users/:id', isAuthenticated, isSelf, function(req, res){
-    connection.query('DELETE FROM user WHERE id = ?', [req.params.id], function (error, results, fields) {
+    connection.query('DELETE FROM User WHERE id = ?', [req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
@@ -292,7 +292,7 @@ router.delete('/users/:id', isAuthenticated, isSelf, function(req, res){
 
 // GET request to update User.
 router.get('/users/:id/edit', isAuthenticated, isSelf, function(req, res){
-    connection.query('SELECT id, email, username, description FROM user WHERE id = ?', [req.params.id], function (error, results, fields) {
+    connection.query('SELECT id, email, username, description FROM User WHERE id = ?', [req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
@@ -355,7 +355,7 @@ router.put('/users/:id', isAuthenticated, isSelf, [
             if (err) {
                 throw error;
             }
-            connection.query('UPDATE user SET email = ?, password = ?, username = ?, description = ? WHERE id = ?', [email, hash, username, description, req.params.id], function (error, results, fields) {
+            connection.query('UPDATE User SET email = ?, password = ?, username = ?, description = ? WHERE id = ?', [email, hash, username, description, req.params.id], function (error, results, fields) {
                 // error will be an Error if one occurred during the query
                 // results will contain the results of the query
                 // fields will contain information about the returned results fields (if any)
@@ -383,8 +383,8 @@ router.put('/users/:id', isAuthenticated, isSelf, [
 
 // GET request for one User.
 router.get('/users/:id', function(req, res){
-    connection.query('SELECT id, username, datecreated, description, imageurl FROM `user` WHERE id = ?; SELECT id, imageurl FROM ' +
-        'image WHERE userid = ? ORDER BY datecreated DESC LIMIT 9', [req.params.id, req.params.id], function (error, results, fields) {
+    connection.query('SELECT id, username, datecreated, description, imageurl FROM `User` WHERE id = ?; SELECT id, imageurl FROM ' +
+        'Image WHERE userid = ? ORDER BY datecreated DESC LIMIT 9', [req.params.id, req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
@@ -422,7 +422,7 @@ router.get('/users/:id', function(req, res){
 
 
 router.get('/get', function(req, res){
-    connection.query('SELECT name, id FROM topic', function (error, results, fields) {
+    connection.query('SELECT name, id FROM Topic', function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
@@ -501,7 +501,7 @@ router.post('/images', isAuthenticated, upload.single('file'), [
                 if (err) {
                     console.log("Error", err);
                 } if (data) {
-                    connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
+                    connection.query('INSERT INTO Image (imageurl, userid, topicid, originalname, ' +
                         'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
                     req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
                         // error will be an Error if one occurred during the query
@@ -522,7 +522,7 @@ router.post('/images', isAuthenticated, upload.single('file'), [
 
 // GET request for one Image.
 router.get('/images/:id', function(req, res){
-    connection.query('select i.id, i.imageurl, i.datecreated, i.userid, i.topicid, u.username, t.name from image as i inner join user as u on i.userid = u.id inner join topic as t on i.topicid = t.id where i.id = ?', [req.params.id], function (error, results, fields) {
+    connection.query('select i.id, i.imageurl, i.datecreated, i.userid, i.topicid, u.username, t.name from Image as i inner join User as u on i.userid = u.id inner join Topic as t on i.topicid = t.id where i.id = ?', [req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
@@ -543,7 +543,7 @@ router.get('/images/:id', function(req, res){
 /// TOPIC ROUTES ///
 // GET request for list of all User items.
 router.get('/topics', function(req, res){
-    connection.query('SELECT * FROM `topic`', function (error, results, fields) {
+    connection.query('SELECT * FROM `Topic`', function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
@@ -564,8 +564,8 @@ router.get('/topics', function(req, res){
 // followed topic or not if yes pass unfollow to button value else pass follow to button value
 //
 router.get('/topics/:id', function(req, res){
-    connection.query('SELECT * FROM `topic` WHERE id = ?; SELECT * FROM `image` WHERE topicid = ? LIMIT 9; SELECT * ' +
-        'FROM `topicfollowing` WHERE following = ? AND followed = ?', [req.params.id, req.params.id, req.user.id,
+    connection.query('SELECT * FROM `Topic` WHERE id = ?; SELECT * FROM `Image` WHERE topicid = ? LIMIT 9; SELECT * ' +
+        'FROM `Topicfollowing` WHERE following = ? AND followed = ?', [req.params.id, req.params.id, req.user.id,
             req.params.id],
         function (error, results, fields) {
         // error will be an Error if one occurred during the query
