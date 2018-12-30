@@ -79,7 +79,7 @@ passport.use(new LocalStrategy({
     // }
     function(req, email, password, done) { // callback with email and password from our form
 
-        connection.query("SELECT * FROM `User` WHERE `email` = '" + email + "'",function(err,rows){
+        connection.query("SELECT * FROM `user` WHERE `email` = '" + email + "'",function(err,rows){
             if (err)
                 return done(err);
             if (!rows.length) {
@@ -115,7 +115,7 @@ passport.serializeUser(function(user, done) {
 //     });
 // });
 passport.deserializeUser(function(id, done) {
-    connection.query("select * from User where id = "+id,function(err,rows){
+    connection.query("select * from user where id = "+id,function(err,rows){
         done(err, rows[0]);
     });
 });
