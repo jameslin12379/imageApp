@@ -39,7 +39,7 @@
 
                         <div class="et_pb_section et_pb_section_1 et_section_specialty pt-none">
                             <div class="et_pb_row">
-                               <div class="gallery">
+                               <div id="gallery" class="gallery">
                                    <% for(var i=0; i < results[1].length; i++) { %>
                                    <div class="gallery-item">
                                     <a class="gallery-item-a mr-none" href="/images/<%= results[1][i].id %>"><img class="gallery-item-img" src="<%= results[1][i].imageurl %>" alt="">
@@ -47,6 +47,9 @@
                                    </div>
                                    <% } %>
                                </div>
+                                <div>
+                                    <p id="loadMore">Loading...</p>
+                                </div>
                             </div>
                         </div>
                         </div>
@@ -59,5 +62,5 @@
 </div>
 
 
-
+<script src="/javascripts/userloadmore.js"></script>
 <% include ../partials/footer %>

@@ -384,14 +384,14 @@ router.put('/users/:id', isAuthenticated, isSelf, [
 // GET request for one User.
 router.get('/users/:id', function(req, res){
     connection.query('SELECT id, username, datecreated, description, imageurl FROM `user` WHERE id = ?; SELECT id, imageurl FROM ' +
-        'image WHERE userid = ? ORDER BY datecreated DESC LIMIT 9', [req.params.id, req.params.id], function (error, results, fields) {
+        'image WHERE userid = ? ORDER BY datecreated DESC LIMIT 12', [req.params.id, req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
         if (error) {
             throw error;
         }
-        console.log(results);
+        // console.log(results);
         res.render('users/show', {
             req: req,
             title: 'Profile',
