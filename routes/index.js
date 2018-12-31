@@ -314,84 +314,164 @@ router.get('/users/:id/edit', isAuthenticated, isSelf, function(req, res){
 });
 
 // PUT request to update User.
-router.put('/users/:id', isAuthenticated, isSelf, [
+router.put('/users/:id', isAuthenticated, isSelf, upload.single('file'), [
     body('email', 'Empty email').not().isEmpty(),
-    body('password', 'Empty password').not().isEmpty(),
     body('username', 'Empty username').not().isEmpty(),
     body('description', 'Empty password').not().isEmpty(),
     body('email', 'Email must be between 5-100 characters.').isLength({min:5, max:100}),
-    body('password', 'Password must be between 5-45 characters.').isLength({min:5, max:45}),
     body('username', 'Username must be between 5-45 characters.').isLength({min:5, max:45}),
     body('description', 'Username must be between 5-200 characters.').isLength({min:5, max:200}),
-    body('email', 'Invalid email').isEmail(),
-    body('password', 'Password must contain one lowercase character, one uppercase character, a number, and ' +
-        'a special character').matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.* )(?=.*[^a-zA-Z0-9]).{8,}$/, "i")
+    body('email', 'Invalid email').isEmail()
 ], (req, res) => {
+    // check if inputs are valid
+    // if yes then upload picture to S3, get new imageurl, check existing imageurl and if it is not
+    // default picture delete it using link, save imageurl and other fields into DB and if successful
+    // return to user home page
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+    let errorsarray = errors.array();
+    // file is not empty
+    // file size limit (max 30mb)
+    // file type is image
+    if (req.file.size === 0){
+        errorsarray.push({msg: "File cannot be empty."});
+    }
+    if (req.file.mimetype.slice(0, 5) !== 'image'){
+        errorsarray.push({msg: "File type needs to be image."});
+    }
+    if (req.file.size > 30000000){
+        errorsarray.push({msg: "File cannot exceed 30MB."});
+    }
+    if (errorsarray.length !== 0) {
         // There are errors. Render form again with sanitized values/errors messages.
         // Error messages can be returned in an array using `errors.array()`.
-        req.flash('errors', errors.array());
+        req.flash('errors', errorsarray);
         req.flash('inputs', {email: req.body.email, username: req.body.username, description: req.body.description});
         res.redirect(req._parsedOriginalUrl.pathname + '/edit');
-        // res.render('users/new', {
-        //     errors: errors.array(),
-        //     email: req.body.email,
-        //     username: req.body.username
-        // });
     }
     else {
-        // Data from form is valid.
         sanitizeBody('email').trim().escape();
-        sanitizeBody('password').trim().escape();
         sanitizeBody('username').trim().escape();
         sanitizeBody('description').trim().escape();
         const email = req.body.email;
-        const password = req.body.password;
         const username = req.body.username;
         const description = req.body.description;
-        bcrypt.hash(password, saltRounds, function(err, hash) {
-            // Store hash in your password DB.
+        // upload image to AWS, get imageurl, check existing imageurl and if not pointing to default profile picture,
+        // delete associated image from bucket, update row from DB with email, username, description, imageurl
+        // console.log(req.file);
+        const uploadParams = {
+            Bucket: 'imageappbucket', // pass your bucket name
+            Key: 'profiles/' + req.file.originalname, // file will be saved as testBucket/contacts.csv
+            Body: req.file.buffer,
+            ContentType: req.file.mimetype
+        };
+        s3.upload (uploadParams, function (err, data) {
             if (err) {
-                throw error;
-            }
-            connection.query('UPDATE user SET email = ?, password = ?, username = ?, description = ? WHERE id = ?', [email, hash, username, description, req.params.id], function (error, results, fields) {
-                // error will be an Error if one occurred during the query
-                // results will contain the results of the query
-                // fields will contain information about the returned results fields (if any)
-                if (error) {
-                    throw error;
+                console.log("Error", err);
+            } if (data) {
+                if (req.user.imageurl !== 'https://s3.amazonaws.com/imageappbucket/profiles/blank-profile-picture-973460_640.png'){
+                    const uploadParams2 = {
+                        Bucket: 'imageappbucket', // pass your bucket name
+                        Key: 'profiles/' + req.user.imageurl.substring(req.user.imageurl.lastIndexOf('/') + 1) // file will be saved as testBucket/contacts.csv
+                    };
+                    s3.deleteObject(uploadParams2, function(err, data) {
+                        if (err) console.log(err, err.stack);  // error
+                        else     console.log();                 // deleted
+                    });
                 }
-                req.flash('alert', 'Profile edited');
-                res.redirect(req._parsedOriginalUrl.pathname);
-            });
-            // connection.query('INSERT INTO user (email, username, password) VALUES (?, ?, ?)', [email, username, hash], function (error, results, fields) {
-            //     // error will be an Error if one occurred during the query
-            //     // results will contain the results of the query
-            //     // fields will contain information about the returned results fields (if any)
-            //     if (error) {
-            //         throw error;
-            //     }
-            //     req.flash('alert', 'You have successfully registered.');
-            //     res.redirect('/login');
-            // });
+                connection.query('UPDATE user SET email = ?, username = ?, description = ?, imageurl = ? WHERE id = ?', [email, username, description, data.Location, req.params.id], function (error, results, fields) {
+                    // error will be an Error if one occurred during the query
+                    // results will contain the results of the query
+                    // fields will contain information about the returned results fields (if any)
+                    if (error) {
+                        throw error;
+                    }
+                    req.flash('alert', 'Profile edited.');
+                    res.redirect(req._parsedOriginalUrl.pathname);
+                });
+                // connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
+                //     'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
+                //     req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
+                //     // error will be an Error if one occurred during the query
+                //     // results will contain the results of the query
+                //     // fields will contain information about the returned results fields (if any)
+                //     if (error) {
+                //         throw error;
+                //     }
+                //     req.flash('alert', 'Photo uploaded.');
+                //     res.redirect('/');
+                // });
+                // console.log("Upload Success", data.Location);
+            }
         });
-
-
     }
 });
+
+
+//
+// (req, res) => {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//         // There are errors. Render form again with sanitized values/errors messages.
+//         // Error messages can be returned in an array using `errors.array()`.
+//         req.flash('errors', errors.array());
+//         req.flash('inputs', {email: req.body.email, username: req.body.username, description: req.body.description});
+//         res.redirect(req._parsedOriginalUrl.pathname + '/edit');
+//         // res.render('users/new', {
+//         //     errors: errors.array(),
+//         //     email: req.body.email,
+//         //     username: req.body.username
+//         // });
+//     }
+//     else {
+//         // Data from form is valid.
+//         sanitizeBody('email').trim().escape();
+//         sanitizeBody('username').trim().escape();
+//         sanitizeBody('description').trim().escape();
+//         const email = req.body.email;
+//         const password = req.body.password;
+//         const username = req.body.username;
+//         const description = req.body.description;
+//         // bcrypt.hash(password, saltRounds, function(err, hash) {
+//         //     // Store hash in your password DB.
+//         //     if (err) {
+//         //         throw error;
+//         //     }
+//             connection.query('UPDATE user SET email = ?, password = ?, username = ?, description = ? WHERE id = ?', [email, hash, username, description, req.params.id], function (error, results, fields) {
+//                 // error will be an Error if one occurred during the query
+//                 // results will contain the results of the query
+//                 // fields will contain information about the returned results fields (if any)
+//                 if (error) {
+//                     throw error;
+//                 }
+//                 req.flash('alert', 'Profile edited');
+//                 res.redirect(req._parsedOriginalUrl.pathname);
+//             });
+//         //     // connection.query('INSERT INTO user (email, username, password) VALUES (?, ?, ?)', [email, username, hash], function (error, results, fields) {
+//         //     //     // error will be an Error if one occurred during the query
+//         //     //     // results will contain the results of the query
+//         //     //     // fields will contain information about the returned results fields (if any)
+//         //     //     if (error) {
+//         //     //         throw error;
+//         //     //     }
+//         //     //     req.flash('alert', 'You have successfully registered.');
+//         //     //     res.redirect('/login');
+//         //     // });
+//         // });
+//
+//
+//     }
+// });
 
 // GET request for one User.
 router.get('/users/:id', function(req, res){
     connection.query('SELECT id, username, datecreated, description, imageurl FROM `user` WHERE id = ?; SELECT id, imageurl FROM ' +
-        'image WHERE userid = ? ORDER BY datecreated DESC LIMIT 12', [req.params.id, req.params.id], function (error, results, fields) {
+        'image WHERE userid = ? ORDER BY datecreated DESC LIMIT 12;SELECT count(*) as c FROM image WHERE userid = ?;', [req.params.id, req.params.id, req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
         if (error) {
             throw error;
         }
-        // console.log(results);
         res.render('users/show', {
             req: req,
             title: 'Profile',
