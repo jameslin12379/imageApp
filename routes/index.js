@@ -89,111 +89,6 @@ function isNotAuthenticatedOrAdmin(req, res, next) {
     res.redirect('/403');
 }
 
-/* DB code */
-// router.get('/mysql', function(req, res, next) {
-//     let title = 'image';
-//     let description = 'image description';
-//     let imageurl = '/images/animals/david-clode-363878-unsplash.jpg';
-//     let userid = 2;
-//     let topicid = 1;
-//     for (let i = 0; i < 50; i++){
-//         connection.query('INSERT INTO image (title, description, imageurl, userid, topicid) VALUES (?, ?, ?, ?, ?)', [title, description, imageurl, userid, topicid], function (error, results, fields) {
-//             // error will be an Error if one occurred during the query
-//             // results will contain the results of the query
-//             // fields will contain information about the returned results fields (if any)
-//             if (error) {
-//                 throw error;
-//             }
-//
-//         });
-//     }
-//     res.send('done');
-//
-// });
-
-// router.get('/userget', function(req, res, next) {
-//     // let title = 'image';
-//     // let description = 'image description';
-//     // let imageurl = '/images/animals/david-clode-363878-unsplash.jpg';
-//     // let userid = 2;
-//     // let topicid = 1;
-//     // for (let i = 0; i < 50; i++){
-//         connection.query('SELECT isadmin FROM user WHERE id = 1', function (error, results, fields) {
-//             // error will be an Error if one occurred during the query
-//             // results will contain the results of the query
-//             // fields will contain information about the returned results fields (if any)
-//             if (error) {
-//                 throw error;
-//             }
-//             console.log(results);
-//             console.log(typeof results[0].isadmin);
-//             if (results[0].isadmin) {
-//                 console.log('true');
-//             }
-//         });
-//     // connection.query('SELECT isadmin FROM user WHERE id = 2', function (error, results, fields) {
-//     //     // error will be an Error if one occurred during the query
-//     //     // results will contain the results of the query
-//     //     // fields will contain information about the returned results fields (if any)
-//     //     if (error) {
-//     //         throw error;
-//     //     }
-//     //     console.log(results);
-//     //     console.log(typeof results[0].isadmin);
-//     //     if (results[0].isadmin) {
-//     //         console.log('true');
-//     //     }
-//     // });
-//     // }
-//     res.send('done');
-//
-// });
-
-// router.get('/update', function(req, res, next) {
-//
-//     //let imageurl = '/images/animals/wexor-tmg-26886-unsplash.jpg';
-//     var imageurl = '/images/travel/';
-//     var index = 46;
-//     var url = '';
-//     for(let i = 0; i < 5; i++){
-//
-//         switch (i) {
-//             case 0:
-//                 url = 'capturing-the-human-heart-528371-unsplash.jpg';
-//                 break;
-//             case 1:
-//                 url = 'ishan-seefromthesky-118523-unsplash.jpg';
-//                 break;
-//             case 2:
-//                 url = 'ishan-seefromthesky-1113277-unsplash.jpg';
-//                 break;
-//             case 3:
-//                 url = 'nils-nedel-386683-unsplash.jpg';
-//                 break;
-//             case 4:
-//                 url = 'simon-migaj-421505-unsplash.jpg';
-//                 break;
-//             default:
-//                 console.log('Sorry, we are out of ');
-//         }
-//
-//         connection.query('UPDATE image SET imageurl = ?, topicid = ? WHERE id = ?', [imageurl + url, 10, index] ,function (error, results, fields) {
-//             // error will be an Error if one occurred during the query
-//             // results will contain the results of the query
-//             // fields will contain information about the returned results fields (if any)
-//             if (error) {
-//                 throw error;
-//             }
-//
-//         });
-//         index++;
-//     }
-//
-//
-//     res.send('done');
-//
-// });
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
     res.render('home/index', {
@@ -274,19 +169,23 @@ router.post('/users', isNotAuthenticated, [
     }
 );
 
-
-// DELETE request to delete User.
-router.delete('/users/:id', isAuthenticated, isSelf, function(req, res){
-    connection.query('DELETE FROM user WHERE id = ?', [req.params.id], function (error, results, fields) {
+// GET request for one User.
+router.get('/users/:id', function(req, res){
+    connection.query('SELECT id, username, datecreated, description, imageurl FROM `user` WHERE id = ?; SELECT id, imageurl FROM ' +
+        'image WHERE userid = ? ORDER BY datecreated DESC LIMIT 12;SELECT count(*) as c FROM image WHERE userid = ?;', [req.params.id, req.params.id, req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
         if (error) {
             throw error;
         }
-        req.flash('alert', 'Profile deleted.');
-        req.logout();
-        res.redirect('/');
+        res.render('users/show', {
+            req: req,
+            title: 'Profile',
+            results: results,
+            moment: moment,
+            alert: req.flash('alert')
+        });
     });
 });
 
@@ -388,135 +287,25 @@ router.put('/users/:id', isAuthenticated, isSelf, upload.single('file'), [
                     req.flash('alert', 'Profile edited.');
                     res.redirect(req._parsedOriginalUrl.pathname);
                 });
-                // connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
-                //     'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
-                //     req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
-                //     // error will be an Error if one occurred during the query
-                //     // results will contain the results of the query
-                //     // fields will contain information about the returned results fields (if any)
-                //     if (error) {
-                //         throw error;
-                //     }
-                //     req.flash('alert', 'Photo uploaded.');
-                //     res.redirect('/');
-                // });
-                // console.log("Upload Success", data.Location);
             }
         });
     }
 });
 
-
-//
-// (req, res) => {
-//     const errors = validationResult(req);
-//     if (!errors.isEmpty()) {
-//         // There are errors. Render form again with sanitized values/errors messages.
-//         // Error messages can be returned in an array using `errors.array()`.
-//         req.flash('errors', errors.array());
-//         req.flash('inputs', {email: req.body.email, username: req.body.username, description: req.body.description});
-//         res.redirect(req._parsedOriginalUrl.pathname + '/edit');
-//         // res.render('users/new', {
-//         //     errors: errors.array(),
-//         //     email: req.body.email,
-//         //     username: req.body.username
-//         // });
-//     }
-//     else {
-//         // Data from form is valid.
-//         sanitizeBody('email').trim().escape();
-//         sanitizeBody('username').trim().escape();
-//         sanitizeBody('description').trim().escape();
-//         const email = req.body.email;
-//         const password = req.body.password;
-//         const username = req.body.username;
-//         const description = req.body.description;
-//         // bcrypt.hash(password, saltRounds, function(err, hash) {
-//         //     // Store hash in your password DB.
-//         //     if (err) {
-//         //         throw error;
-//         //     }
-//             connection.query('UPDATE user SET email = ?, password = ?, username = ?, description = ? WHERE id = ?', [email, hash, username, description, req.params.id], function (error, results, fields) {
-//                 // error will be an Error if one occurred during the query
-//                 // results will contain the results of the query
-//                 // fields will contain information about the returned results fields (if any)
-//                 if (error) {
-//                     throw error;
-//                 }
-//                 req.flash('alert', 'Profile edited');
-//                 res.redirect(req._parsedOriginalUrl.pathname);
-//             });
-//         //     // connection.query('INSERT INTO user (email, username, password) VALUES (?, ?, ?)', [email, username, hash], function (error, results, fields) {
-//         //     //     // error will be an Error if one occurred during the query
-//         //     //     // results will contain the results of the query
-//         //     //     // fields will contain information about the returned results fields (if any)
-//         //     //     if (error) {
-//         //     //         throw error;
-//         //     //     }
-//         //     //     req.flash('alert', 'You have successfully registered.');
-//         //     //     res.redirect('/login');
-//         //     // });
-//         // });
-//
-//
-//     }
-// });
-
-// GET request for one User.
-router.get('/users/:id', function(req, res){
-    connection.query('SELECT id, username, datecreated, description, imageurl FROM `user` WHERE id = ?; SELECT id, imageurl FROM ' +
-        'image WHERE userid = ? ORDER BY datecreated DESC LIMIT 12;SELECT count(*) as c FROM image WHERE userid = ?;', [req.params.id, req.params.id, req.params.id], function (error, results, fields) {
+// DELETE request to delete User.
+router.delete('/users/:id', isAuthenticated, isSelf, function(req, res){
+    connection.query('DELETE FROM user WHERE id = ?', [req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
         if (error) {
             throw error;
         }
-        res.render('users/show', {
-            req: req,
-            title: 'Profile',
-            results: results,
-            moment: moment,
-            alert: req.flash('alert')
-        });
+        req.flash('alert', 'Profile deleted.');
+        req.logout();
+        res.redirect('/');
     });
 });
-
-// GET request for list of all User items.
-// router.get('/users', isAuthenticated, isAdmin, function(req, res){
-//     connection.query('SELECT * FROM `user`', function (error, results, fields) {
-//         // error will be an Error if one occurred during the query
-//         // results will contain the results of the query
-//         // fields will contain information about the returned results fields (if any)
-//         if (error) {
-//             throw error;
-//         }
-//         res.render('users/index', {
-//             req: req,
-//             users: results,
-//             title: 'Users',
-//             alert: req.flash('alert')
-//         });
-//     });
-// });
-
-
-router.get('/get', function(req, res){
-    connection.query('SELECT name, id FROM topic', function (error, results, fields) {
-        // error will be an Error if one occurred during the query
-        // results will contain the results of the query
-        // fields will contain information about the returned results fields (if any)
-        if (error) {
-            throw error;
-        }
-        console.log(results);
-        res.render('test', {
-            results: results
-        });
-    });
-});
-
-
 
 /// IMAGE ROUTES ///
 // GET request for creating a Image. NOTE This must come before routes that display Image (uses id).
@@ -636,20 +425,51 @@ router.delete('/images/:id', isAuthenticated, function(req, res){
             res.redirect(`/users/${req.user.id}`);
         });
     });
-    // connection.query('DELETE FROM image WHERE id = ?', [req.params.id], function (error, results, fields) {
-    //     // error will be an Error if one occurred during the query
-    //     // results will contain the results of the query
-    //     // fields will contain information about the returned results fields (if any)
-    //     if (error) {
-    //         throw error;
-    //     }
-    //     req.flash('alert', 'Photo deleted.');
-    //     res.redirect(`/users/${req.user.id}`);
-    // });
 });
 
 
 /// TOPIC ROUTES ///
+
+// get topic information, get 10 images of the topic, if current user is logged in, check if he has
+// followed topic or not if yes pass unfollow to button value else pass follow to button value
+//
+
+router.get('/topics/:id', function(req, res){
+    connection.query('SELECT id, name, description, datecreated, url FROM `topic` WHERE id = ?; SELECT id, imageurl FROM `image` WHERE topicid = ? ORDER BY datecreated DESC LIMIT 12;' +
+        'SELECT count(*) as c FROM image WHERE topicid = ?;', [req.params.id, req.params.id, req.params.id],
+        function (error, results, fields) {
+            // error will be an Error if one occurred during the query
+            // results will contain the results of the query
+            // fields will contain information about the returned results fields (if any)
+            if (error) {
+                throw error;
+            }
+            if (req.isAuthenticated()) {
+                connection.query('SELECT count(*) as C FROM topicfollowing WHERE following = ? and followed = ?;', [req.user.id, req.params.id],
+                    function (error, result, fields) {
+                        if (error) {
+                            throw error;
+                        }
+                        res.render('topics/show', {
+                            req: req,
+                            results: results,
+                            status: result[0].C,
+                            moment: moment,
+                            alert: req.flash('alert')
+                        });
+                    });
+            } else {
+                res.render('topics/show', {
+                    req: req,
+                    results: results,
+                    moment: moment,
+                    alert: req.flash('alert')
+                });
+            }
+
+        });
+});
+
 // GET request for list of all User items.
 router.get('/topics', function(req, res){
     connection.query('SELECT * FROM `topic`', function (error, results, fields) {
@@ -664,30 +484,6 @@ router.get('/topics', function(req, res){
             req: req,
             topics: results,
             title: 'Users',
-            alert: req.flash('alert')
-        });
-    });
-});
-
-// get topic information, get 10 images of the topic, if current user is logged in, check if he has
-// followed topic or not if yes pass unfollow to button value else pass follow to button value
-//
-router.get('/topics/:id', function(req, res){
-    connection.query('SELECT * FROM `topic` WHERE id = ?; SELECT * FROM `image` WHERE topicid = ? LIMIT 9; SELECT * ' +
-        'FROM `topicfollowing` WHERE following = ? AND followed = ?', [req.params.id, req.params.id, req.user.id,
-            req.params.id],
-        function (error, results, fields) {
-        // error will be an Error if one occurred during the query
-        // results will contain the results of the query
-        // fields will contain information about the returned results fields (if any)
-        if (error) {
-            throw error;
-        }
-
-        console.log(results);
-        res.render('topics/show', {
-            req: req,
-            topic: results[0],
             alert: req.flash('alert')
         });
     });
@@ -726,9 +522,5 @@ router.get('/403', function(req, res){
 router.get('/404', function(req, res){
     res.render('404');
 });
-
-router.get('/test', function (req, res) {
-    res.render('test');
-})
 
 module.exports = router;
