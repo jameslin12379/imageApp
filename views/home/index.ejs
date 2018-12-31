@@ -46,6 +46,11 @@
                                 <div class="et_pb_column et_pb_column_1_2 et_pb_column_12    et_pb_css_mix_blend_mode_passthrough ptb-50">
                                     <div class="et_pb_module et_pb_signup_0 et_hover_enabled et_pb_newsletter_layout_left_right et_pb_newsletter et_pb_subscribe clearfix et_pb_bg_layout_dark  et_pb_text_align_left et_pb_no_bg">
                                         <div class="et_pb_newsletter_form text-center">
+                                            <% if (alert.length > 0) { %>
+                                            <div class="et_pb_newsletter_result et_pb_newsletter_error show text-center mb-1 fs-18">
+                                                <%= alert %>
+                                            </div>
+                                            <% } %>
                                         <!--<div class="et_pb_column et_pb_column_1_2 et_pb_column_0    et_pb_css_mix_blend_mode_passthrough" id="indexleft">-->
                                             <div class="et_pb_module et_pb_text et_pb_text_0 et_pb_bg_layout_dark mb-none">
                                                 <div class="et_pb_text_inner">

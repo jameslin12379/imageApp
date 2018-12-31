@@ -532,11 +532,7 @@ router.get('/images/new', isAuthenticated, function(req, res){
 // POST request for creating Image.
 router.post('/images', isAuthenticated, upload.single('file'), [
         // validation
-        // body('title', 'Empty title').not().isEmpty(),
-        // body('description', 'Empty description').not().isEmpty(),
         body('topic', 'Empty topic').not().isEmpty(),
-        // body('title', 'Title must be between 5-45 characters.').isLength({min:5, max:45}),
-        // body('description', 'Description must be between 5-200 characters.').isLength({min:5, max:200})
     ], (req, res) => {
         const errors = validationResult(req);
         let errorsarray = errors.array();
@@ -562,11 +558,7 @@ router.post('/images', isAuthenticated, upload.single('file'), [
         else {
             // const redirect = req.query.redirect;
             // Data from form is valid.
-            // sanitizeBody('title').trim().escape();
-            // sanitizeBody('description').trim().escape();
             sanitizeBody('topic').trim().escape();
-            // const title = req.body.title;
-            // const description = req.body.description;
             const topic = req.body.topic;
             // upload image to AWS, get imageurl, insert row into DB with title, description, topic, imageurl, currentuserid, and
             // meta data fields for image (size, type, etc...)
@@ -591,7 +583,7 @@ router.post('/images', isAuthenticated, upload.single('file'), [
                             throw error;
                         }
                         req.flash('alert', 'Photo uploaded.');
-                        res.redirect('/');
+                        res.redirect(`/users/${req.user.id}`);
                     });
                     // console.log("Upload Success", data.Location);
                 }
@@ -617,6 +609,43 @@ router.get('/images/:id', function(req, res){
             alert: req.flash('alert')
         });
     });
+});
+
+
+// DELETE request to delete User.
+router.delete('/images/:id', isAuthenticated, function(req, res){
+    connection.query('SELECT userid FROM image WHERE id = ?', [req.params.id], function (error, results, fields) {
+        // error will be an Error if one occurred during the query
+        // results will contain the results of the query
+        // fields will contain information about the returned results fields (if any)
+        if (error) {
+            throw error;
+        }
+        const userid = results[0].userid;
+        if (req.user.id !== userid) {
+            res.redirect('/403');
+        }
+        connection.query('DELETE FROM image WHERE id = ?', [req.params.id], function (error, results, fields) {
+            // error will be an Error if one occurred during the query
+            // results will contain the results of the query
+            // fields will contain information about the returned results fields (if any)
+            if (error) {
+                throw error;
+            }
+            req.flash('alert', 'Photo deleted.');
+            res.redirect(`/users/${req.user.id}`);
+        });
+    });
+    // connection.query('DELETE FROM image WHERE id = ?', [req.params.id], function (error, results, fields) {
+    //     // error will be an Error if one occurred during the query
+    //     // results will contain the results of the query
+    //     // fields will contain information about the returned results fields (if any)
+    //     if (error) {
+    //         throw error;
+    //     }
+    //     req.flash('alert', 'Photo deleted.');
+    //     res.redirect(`/users/${req.user.id}`);
+    // });
 });
 
 
@@ -692,6 +721,10 @@ router.get('/logout', isAuthenticated, function(req, res){
 
 router.get('/403', function(req, res){
     res.render('403');
+});
+
+router.get('/404', function(req, res){
+    res.render('404');
 });
 
 router.get('/test', function (req, res) {
