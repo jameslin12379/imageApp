@@ -20,13 +20,23 @@
                                             <div class="et_pb_blurb_container">
                                                 <h4 class="et_pb_module_header pb-14"><%= results[0][0].name %></h4>
                                                 <div class="et_pb_blurb_description">
-                                                    <p><%= results[2][0].c %> Photos</p>
-                                                    <p><%= results[0][0].description %></p>
+                                                    <!--<div class="grid">-->
+                                                        <!--<p></p>-->
+                                                    <div>
+                                                        <div class="grid mza w-20">
+                                                            <p><%= results[2][0].c %> Photos</p>
+                                                            <p><span id="topicfollowingcount"><%= results[3][0].c2 %></span> Followers</p>
+                                                        </div>
+                                                    </div>
+
+                                                        <!--<p></p>-->
+                                                    <!--</div>-->
+                                                    <p class="mza w-60"><%= results[0][0].description %></p>
                                                     <% if (req.isAuthenticated()) { %>
                                                     <div class="et_pb_button_module_wrapper et_pb_button_2_wrapper et_pb_button_alignment_center et_pb_module flex justify">
                                                         <!--<a class="submit-button mr-1" href="/users/<%= results[0][0].id %>/edit">Edit</a>-->
                                                         <!--<form action="/users/<%= results[0][0].id %>?_method=DELETE" method="post">-->
-                                                            <button type="submit" class="submit-button">
+                                                            <button id="followunfollow" class="submit-button">
                                                                 <% if (status === 0) { %>
                                                                 Follow
                                                                 <% } else { %>
@@ -72,5 +82,10 @@
 </div>
 
 <script src="/javascripts/topicloadmore.js"></script>
+<% if (req.isAuthenticated()) { %>
+<script src="/javascripts/topicfollowunfollow.js"></script>
+<% } %>
+
+
 
 <% include ../partials/footer %>

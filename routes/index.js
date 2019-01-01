@@ -436,7 +436,7 @@ router.delete('/images/:id', isAuthenticated, function(req, res){
 
 router.get('/topics/:id', function(req, res){
     connection.query('SELECT id, name, description, datecreated, url FROM `topic` WHERE id = ?; SELECT id, imageurl FROM `image` WHERE topicid = ? ORDER BY datecreated DESC LIMIT 12;' +
-        'SELECT count(*) as c FROM image WHERE topicid = ?;', [req.params.id, req.params.id, req.params.id],
+        'SELECT count(*) as c FROM image WHERE topicid = ?;SELECT count(*) as c2 FROM topicfollowing WHERE followed = ?', [req.params.id, req.params.id, req.params.id, req.params.id],
         function (error, results, fields) {
             // error will be an Error if one occurred during the query
             // results will contain the results of the query
@@ -487,6 +487,81 @@ router.get('/topics', function(req, res){
             alert: req.flash('alert')
         });
     });
+});
+
+/// TOPICFOLLOWING ROUTES ///
+
+// POST request for creating Topicfollowing.
+router.post('/topicfollowings', isAuthenticated, function(req, res) {
+    connection.query('INSERT INTO topicfollowing (following, followed) VALUES (?, ?)', [req.user.id, req.body.topicid], function (error, results, fields) {
+        // error will be an Error if one occurred during the query
+        // results will contain the results of the query
+        // fields will contain information about the returned results fields (if any)
+        if (error) {
+            throw error;
+        }
+        // console.log(results);
+        // res.json({tfid: results.insertId});
+        res.json({status: 'done'});
+    });
+});
+
+// DELETE request for deleting Topicfollowing.
+// router.delete('/topicfollowings/:id', isAuthenticated, function(req, res) {
+//     connection.query('SELECT following FROM topicfollowing WHERE id = ?', [req.params.id], function (error, results, fields) {
+//         // error will be an Error if one occurred during the query
+//         // results will contain the results of the query
+//         // fields will contain information about the returned results fields (if any)
+//         if (error) {
+//             throw error;
+//         }
+//         const userid = results[0].following;
+//         if (req.user.id !== userid) {
+//             res.redirect('/403');
+//         }
+//         connection.query('DELETE FROM topicfollowing WHERE id = ?', [req.params.id], function (error, results, fields) {
+//             // error will be an Error if one occurred during the query
+//             // results will contain the results of the query
+//             // fields will contain information about the returned results fields (if any)
+//             if (error) {
+//                 throw error;
+//             }
+//             res.json({status: 'done'});
+//         });
+//     });
+// });
+
+router.delete('/topicfollowings', isAuthenticated, function(req, res) {
+    connection.query('DELETE FROM topicfollowing WHERE following = ? and followed = ?', [req.user.id, req.body.topicid], function (error, results, fields) {
+        // error will be an Error if one occurred during the query
+        // results will contain the results of the query
+        // fields will contain information about the returned results fields (if any)
+        if (error) {
+            throw error;
+        }
+        res.json({status: 'done'});
+    });
+    // connection.query('SELECT following FROM topicfollowing WHERE id = ?', [req.params.id], function (error, results, fields) {
+    //     // error will be an Error if one occurred during the query
+    //     // results will contain the results of the query
+    //     // fields will contain information about the returned results fields (if any)
+    //     if (error) {
+    //         throw error;
+    //     }
+    //     const userid = results[0].following;
+    //     if (req.user.id !== userid) {
+    //         res.redirect('/403');
+    //     }
+    //     connection.query('DELETE FROM topicfollowing WHERE id = ?', [req.params.id], function (error, results, fields) {
+    //         // error will be an Error if one occurred during the query
+    //         // results will contain the results of the query
+    //         // fields will contain information about the returned results fields (if any)
+    //         if (error) {
+    //             throw error;
+    //         }
+    //         res.json({status: 'done'});
+    //     });
+    // });
 });
 
 /// LOGIN ROUTES ///
