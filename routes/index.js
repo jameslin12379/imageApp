@@ -13,6 +13,16 @@ const s3 = new AWS.S3({
     secretAccessKey: process.env.AWSSecretKey
 });
 var moment = require('moment');
+var faker = require('faker');
+const fs = require('fs');
+const request = require('request');
+const cheerio = require('cheerio')
+
+// var script = document.createElement('script');
+// script.src = 'https://code.jquery.com/jquery-3.3.1.js';
+// script.type = 'text/javascript';
+// script.integrity = "sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=";
+// script.crossorigin = "anonymous";
 
 function isAuthenticated(req, res, next) {
     // do any checks you want to in here
@@ -106,6 +116,309 @@ router.get('/', function(req, res, next) {
     //     alert: req.flash('alert'),
     // });
 });
+
+// Generate 10000 users
+router.get('/createusers', function(req, res){
+    for (let i = 0; i < 5000; i++) {
+        let randomEmail = faker.internet.email(); // Kassandra.Haley@erich.biz
+        let randomP = faker.internet.password(); // Kassandra.Haley@erich.biz
+        let randomName = faker.internet.userName(); // Rowan Nikolaus
+
+        fs.appendFile("./routes/users.txt", `Users# ${i} Email ${randomEmail} Password ${randomP} Username ${randomName} \n`, function(err) {
+            if(err) {
+                return console.log(err);
+            }
+            // console.log("The file was saved!");
+        });
+        bcrypt.hash(randomP, saltRounds, function(err, hash) {
+            // Store hash in your password DB.
+            if (err) {
+                throw error;
+            }
+            connection.query('INSERT INTO user (email, username, password) VALUES (?, ?, ?)', [randomEmail, randomName, hash], function (error, results, fields) {
+                // error will be an Error if one occurred during the query
+                // results will contain the results of the query
+                // fields will contain information about the returned results fields (if any)
+                if (error) {
+                    throw error;
+                }
+                console.log('saved');
+            });
+        });
+    }
+});
+
+// Generate 30 images for each topic (2100 images)
+// for each topic, find 30 images from the internet,
+// download images, upload them to AWS S3, get
+// imageurl and save it to DB
+router.get('/createimages', function(req, res){
+    connection.query('select * from topic', function(error, results, fields){
+        if (error) {
+            throw error;
+        }
+        for (let i = 0; i < results.length; i++){
+            let topicname = results[i].name;
+            // for (let j = 0; j < 5; j++){
+                // get a picture from unsplash.com related to current topic  and upload it
+                // to AWS S3, get imageurl back and save it along with a randomly generated userid
+                // from the 10000 user ids into DB and repeat
+                // use unsplash API to get image (upper limit of 50 per hour)
+
+                // https://images.unsplash.com/photo-1505664194779-8beaceb93744?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=100&q=60
+                request(`https://unsplash.com/search/photos/${topicname}`, function (error, response, body) {
+                    if (error) {
+                        throw error;
+                    }
+                    let $ = cheerio.load(body);
+
+                    let result = $('img._2zEKz');
+
+                    // let $ = cheerio.load(body);
+                        // let images = $('._1pn7R img').html();
+                        // console.log(images);
+                    // console.log($('._2zEKz').html());
+                    // console.log($('._2zEKz').attr('srcset'));
+
+
+                    // get link for each of images and send request to link and retrieve
+                    // image data to upload it to AWS S3 and get imageurl back and
+                    // save it along with randomized userid as a new image row into the DB
+
+                    // console.log(topicname);
+
+
+                    // $('h2.title').text('Hello there!')
+                    // $('h2').addClass('welcome')
+                    // var imgs = $(body).find('img');
+                    // console.log(imgs);
+                    // from topic page extract image links
+                });
+                // const uploadParams = {
+                //     Bucket: 'imageappbucket', // pass your bucket name
+                //     Key: 'images/' + req.file.originalname, // file will be saved as testBucket/contacts.csv
+                //     Body: req.file.buffer,
+                //     ContentType: req.file.mimetype
+                // };
+                // s3.upload (uploadParams, function (err, data) {
+                //     if (err) {
+                //         console.log("Error", err);
+                //     } if (data) {
+                //         connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
+                //             'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
+                //             req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
+                //             // error will be an Error if one occurred during the query
+                //             // results will contain the results of the query
+                //             // fields will contain information about the returned results fields (if any)
+                //             if (error) {
+                //                 throw error;
+                //             }
+                //             req.flash('alert', 'Photo uploaded.');
+                //             res.redirect(`/users/${req.user.id}`);
+                //         });
+                //         // console.log("Upload Success", data.Location);
+                //     }
+                // });
+            // }
+        }
+    });
+});
+
+router.get('/createimage', function(req,res) {
+    request(`https://www.pexels.com/search/history/`, function (error, response, body) {
+        if (error) {
+            throw error;
+        }
+        let $ = cheerio.load(body);
+
+        // let images = $('._1pn7R img').html();
+        // console.log(images);
+        let result = $('img.photo-item__img');
+        let validurl = [];
+        result.each(function (i, elem) {
+            if (!(validurl.includes(elem.attribs.src))) {
+                validurl.push(elem.attribs.src);
+            }
+        });
+        // result.each(function (i, elem) {
+        //     request(elem.attribs.src, function (e, r, b) {
+        //         const uploadParams = {
+        //             Bucket: 'imageappbucket', // pass your bucket name
+        //             Key: 'images/' + elem.attribs.src.substring(elem.attribs.src.lastIndexOf('/')+1, elem.attribs.src.lastIndexOf('?')), // file will be saved as testBucket/contacts.csv
+        //             Body: b,
+        //             ContentType: 'image/jpeg'
+        //         };
+        //         s3.upload(uploadParams, function (err, data) {
+        //             if (err) {
+        //                 console.log("Error", err);
+        //             }
+        //             if (data) {
+        //                 console.log(data);
+        //
+        //                 // connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
+        //                 //     'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
+        //                 //     req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
+        //                 //     // error will be an Error if one occurred during the query
+        //                 //     // results will contain the results of the query
+        //                 //     // fields will contain information about the returned results fields (if any)
+        //                 //     if (error) {
+        //                 //         throw error;
+        //                 //     }
+        //                 //     req.flash('alert', 'Photo uploaded.');
+        //                 //     res.redirect(`/users/${req.user.id}`);
+        //                 // });
+        //                 // console.log("Upload Success", data.Location);
+        //             }
+        //         });
+        //     });
+            console.log(validurl);
+
+            // console.log(elem.attribs.src);
+        });
+        // get link for each of images and send request to link and retrieve
+        // image data to upload it to AWS S3 and get imageurl back and
+        // save it along with randomized userid as a new image row into the DB
+
+        // console.log(topicname);
+
+
+        // $('h2.title').text('Hello there!')
+        // $('h2').addClass('welcome')
+        // var imgs = $(body).find('img');
+        // console.log(imgs);
+        // from topic page extract image links
+    // });
+});
+
+// router.get('/createimage', function(req,res){
+//     request(`https://unsplash.com/search/photos/nature`, function (error, response, body) {
+//         if (error) {
+//             throw error;
+//         }
+//         let $ = cheerio.load(body);
+//
+//         // let images = $('._1pn7R img').html();
+//         // console.log(images);
+//         let result = $('img._2zEKz');
+//         let validurl = [];
+//         result.each(function(i, elem){
+//
+//             if (!(validurl.includes(elem.attribs.src))) {
+//                 validurl.push(elem.attribs.src);
+//             }
+//             // request(elem.attribs.src, function (e,r,b) {
+//
+//                 // const uploadParams = {
+//                 //     Bucket: 'imageappbucket', // pass your bucket name
+//                 //     Key: 'images/' + elem.attribs.src.substring(28,elem.attribs.src.lastIndexOf('?')), // file will be saved as testBucket/contacts.csv
+//                 //     Body: b,
+//                 //     ContentType: 'image/jpeg'
+//                 // };
+//                 // s3.upload (uploadParams, function (err, data) {
+//                 //     if (err) {
+//                 //         console.log("Error", err);
+//                 //     } if (data) {
+//                 //         console.log(data);
+//                 //
+//                 //         // connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
+//                 //         //     'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
+//                 //         //     req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
+//                 //         //     // error will be an Error if one occurred during the query
+//                 //         //     // results will contain the results of the query
+//                 //         //     // fields will contain information about the returned results fields (if any)
+//                 //         //     if (error) {
+//                 //         //         throw error;
+//                 //         //     }
+//                 //         //     req.flash('alert', 'Photo uploaded.');
+//                 //         //     res.redirect(`/users/${req.user.id}`);
+//                 //         // });
+//                 //         // console.log("Upload Success", data.Location);
+//                 //     }
+//                 // });
+//             });
+//             console.log(validurl);
+//             // console.log(elem.attribs.src);
+//         });
+//         // get link for each of images and send request to link and retrieve
+//         // image data to upload it to AWS S3 and get imageurl back and
+//         // save it along with randomized userid as a new image row into the DB
+//
+//         // console.log(topicname);
+//
+//
+//         // $('h2.title').text('Hello there!')
+//         // $('h2').addClass('welcome')
+//         // var imgs = $(body).find('img');
+//         // console.log(imgs);
+//         // from topic page extract image links
+//     });
+
+
+// router.get('/createimage', function(req,res) {
+//     request(`https://images.unsplash.com/photo-1505664194779-8beaceb93744?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80`, function (error, response, body) {
+//         if (error) {
+//             throw error;
+//         }
+//         const uploadParams = {
+//             Bucket: 'imageappbucket', // pass your bucket name
+//             Key: 'images/' + , // file will be saved as testBucket/contacts.csv
+//             Body: body,
+//             ContentType: req.file.mimetype
+//         };
+//         s3.upload(uploadParams, function (err, data) {
+//             if (err) {
+//                 console.log("Error", err);
+//             } if (data) {
+//                 connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
+//                     'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
+//                     req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
+//                     // error will be an Error if one occurred during the query
+//                     // results will contain the results of the query
+//                     // fields will contain information about the returned results fields (if any)
+//                     if (error) {
+//                         throw error;
+//                     }
+//                     req.flash('alert', 'Photo uploaded.');
+//                     res.redirect(`/users/${req.user.id}`);
+//                 });
+//                 // console.log("Upload Success", data.Location);
+//             }
+//         });
+//
+//         // let $ = cheerio.load(body);
+//         // // let images = $('._1pn7R img').html();
+//         // // console.log(images);
+//         // let result = $('._2zEKz');
+//         //
+//         // // console.log(result);
+//         // result.each(function(i, elem) {
+//         //     request(elem.attribs.src, function (e,r,b) {
+//         //         console.log(typeof b);
+//         //     });
+//         //     // console.log(elem.attribs.src);
+//         // });
+//
+//
+//
+//
+//
+//         // get link for each of images and send request to link and retrieve
+//         // image data to upload it to AWS S3 and get imageurl back and
+//         // save it along with randomized userid as a new image row into the DB
+//
+//         // console.log(topicname);
+//
+//
+//         // $('h2.title').text('Hello there!')
+//         // $('h2').addClass('welcome')
+//         // var imgs = $(body).find('img');
+//         // console.log(imgs);
+//         // from topic page extract image links
+//     });
+// }
+
+
+
 
 /// USERS ROUTES ///
 
@@ -484,6 +797,25 @@ router.get('/topics', function(req, res){
             req: req,
             topics: results,
             title: 'Users',
+            alert: req.flash('alert')
+        });
+    });
+});
+
+/// GET request for topic followers sorted by created date in descending order limit by 15
+router.get('/topics/:id/followers', function(req, res){
+    connection.query('SELECT id, name, description, datecreated, url FROM `topic` WHERE id = ?;select u.id, u.username, u.imageurl from topicfollowing as tf inner join user as u on tf.following = u.id where tf.followed = ? ' +
+        'ORDER BY tf.datecreated DESC LIMIT 15; SELECT count(*) as c2 FROM topicfollowing WHERE followed = ?', [req.params.id, req.params.id, req.params.id], function (error, results, fields) {
+        // error will be an Error if one occurred during the query
+        // results will contain the results of the query
+        // fields will contain information about the returned results fields (if any)
+        if (error) {
+            throw error;
+        }
+        console.log(results);
+        res.render('topics/followers', {
+            req: req,
+            results: results,
             alert: req.flash('alert')
         });
     });

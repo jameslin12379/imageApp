@@ -144,6 +144,10 @@
     color: white;
 }
 
+.brown {
+    color: #8585bd!important;
+}
+
 .submit-button {
     padding: 5px 15px!important;
     color: #ffffff!important;
