@@ -3,7 +3,6 @@
 // 12 images and if successful append them into the page
 // stop sending ajax requests when there are no more images
 
-
 const loadMoreElement = document.querySelector('#loadMore');
 const galleryElement = document.querySelector('#gallery');
 const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000/images' : 'http://api.gif67.com/images';
@@ -13,9 +12,6 @@ let count = document.getElementsByClassName('gallery-item').length;
 const total = Number(document.getElementById('count').getAttribute('data-count'));
 let skip = count;
 let limit = 12;
-// let loading = false;
-// let finished = false;
-
 
 document.addEventListener('scroll', () => {
     const rect = loadMoreElement.getBoundingClientRect();
@@ -41,13 +37,6 @@ document.addEventListener('scroll', () => {
                         galleryElement.appendChild(div);
 
                     });
-                    // if (!result.has_more) {
-                    //     loadMoreElement.style.visibility = 'hidden';
-                    //     finished = true;
-                    // } else {
-                    //     loadMoreElement.style.visibility = 'visible';
-                    // }
-                    // loading = false;
                 });
             count = document.getElementsByClassName('gallery-item').length;
             skip = count;
@@ -55,18 +44,3 @@ document.addEventListener('scroll', () => {
 
     }
 });
-
-// function loadMore() {
-//     skip += limit;
-//     listAllImages(false);
-// }
-//
-// function listAllImages(reset = true) {
-//     loading = true;
-//     // if (reset) {
-//     //     mewsElement.innerHTML = '';
-//     //     skip = 0;
-//     //     finished = false;
-//     // }
-//
-// }

@@ -16,26 +16,24 @@
                                     <% } %>
                                     <div class="et_pb_module et_pb_blurb et_pb_blurb_5 et_pb_bg_layout_light  et_pb_text_align_center  et_pb_blurb_position_top box-shadow-none pd-0 box-shadow-none" style="">
                                         <div class="et_pb_blurb_content">
-                                            <div class="et_pb_main_blurb_image width-100 height-100"><img src="<%= results[0][0].url %>" alt="" class="et-waypoint et_pb_animation_top et-animated width-100p height-100p"></div>
+                                            <div class="et_pb_main_blurb_image width-100 height-100"><img src="<%= results[0][0].imageurl %>" alt="" class="et-waypoint et_pb_animation_top et-animated width-100p height-100p"></div>
                                             <div class="et_pb_blurb_container">
                                                 <h4 class="et_pb_module_header pb-14"><%= results[0][0].name %></h4>
                                                 <div class="et_pb_blurb_description">
                                                     <!--<div class="grid">-->
                                                         <!--<p></p>-->
-                                                    <div>
-                                                        <div class="grid mza w-20">
-                                                            <p><%= results[2][0].c %> Photos</p>
-                                                            <a class="brown" href="/topics/<%= results[0][0].id %>/followers"><p><span id="topicfollowingcount"><%= results[3][0].c2 %></span> Followers</p></a>
+
+                                                        <div class="grid mza w-20 pb-14">
+                                                            <p><%= results[2][0].imagescount %> Photos</p>
+                                                            <a class="brown" href="/topics/<%= results[0][0].id %>/followers"><p><span id="topicfollowerscount"><%= results[3][0].followerscount %></span> Followers</p></a>
                                                         </div>
-                                                    </div>
+
 
                                                         <!--<p></p>-->
                                                     <!--</div>-->
                                                     <p class="mza w-60"><%= results[0][0].description %></p>
                                                     <% if (req.isAuthenticated()) { %>
                                                     <div class="et_pb_button_module_wrapper et_pb_button_2_wrapper et_pb_button_alignment_center et_pb_module flex justify">
-                                                        <!--<a class="submit-button mr-1" href="/users/<%= results[0][0].id %>/edit">Edit</a>-->
-                                                        <!--<form action="/users/<%= results[0][0].id %>?_method=DELETE" method="post">-->
                                                             <button id="followunfollow" class="submit-button">
                                                                 <% if (status === 0) { %>
                                                                 Follow
@@ -43,7 +41,6 @@
                                                                 Unfollow
                                                                 <% } %>
                                                             </button>
-                                                        <!--</form>-->
                                                     </div>
                                                     <% } %>
                                                 </div>
@@ -57,7 +54,7 @@
                         </div>
 
 
-                        <div id="count" class="et_pb_section et_pb_section_1 et_section_specialty pt-none" data-count=<%= results[2][0].c %>>
+                        <div id="count" class="et_pb_section et_pb_section_1 et_section_specialty pt-none" data-count=<%= results[2][0].imagescount %>>
                             <div class="et_pb_row">
                                 <div id="gallery" class="gallery">
                                     <% for(var i=0; i < results[1].length; i++) { %>
@@ -81,7 +78,7 @@
 
 </div>
 
-<script src="/javascripts/topicloadmore.js"></script>
+<script src="/javascripts/topicloadmoreimages.js"></script>
 <% if (req.isAuthenticated()) { %>
 <script src="/javascripts/topicfollowunfollow.js"></script>
 <% } %>

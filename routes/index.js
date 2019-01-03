@@ -19,12 +19,6 @@ const request = require('request');
 const cheerio = require('cheerio');
 var randomWords = require('random-words');
 
-// var script = document.createElement('script');
-// script.src = 'https://code.jquery.com/jquery-3.3.1.js';
-// script.type = 'text/javascript';
-// script.integrity = "sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=";
-// script.crossorigin = "anonymous";
-
 function isAuthenticated(req, res, next) {
     // do any checks you want to in here
 
@@ -100,24 +94,7 @@ function isNotAuthenticatedOrAdmin(req, res, next) {
     res.redirect('/403');
 }
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-    res.render('home/index', {
-        req: req,
-        title: 'GIF.com',
-        alert: req.flash('alert')
-    });
-    // if (req.isAuthenticated()) {
-    //     res.render('home/feed', {
-    //         req: req
-    //     })
-    // }
-    // res.render('home/index', {
-    //     req: req,
-    //     alert: req.flash('alert'),
-    // });
-});
-
+// AUTOMATION
 // Generate 10000 users
 router.get('/createusers', function(req, res){
     for (let i = 0; i < 5000; i++) {
@@ -311,8 +288,6 @@ function getRandomIntInclusive(min, max) {
 //     }
 // });
 
-
-
 router.get('/createimages', function(req,res) {
     request(`https://www.pexels.com/search/vintage/`, function (error, response, body) {
         if (error) {
@@ -349,7 +324,6 @@ router.get('/createimages', function(req,res) {
                         console.log("Error", err);
                     }
                     if (data) {
-
                             let userid = getRandomIntInclusive(1, 10000);
                             connection.query('INSERT INTO image (imageurl, userid, topicid) VALUES (?, ?, ?)', [data.Location,
                                 userid, 81], function (error, results, fields) {
@@ -369,7 +343,6 @@ router.get('/createimages', function(req,res) {
         }
     });
 });
-
 
 router.get('/createimage', function(req,res){
     request(`https://www.pexels.com/search/comics/`, function (error, response, body) {
@@ -423,11 +396,25 @@ router.get('/createtopicfollowings', function(req,res) {
     });
 });
 
-
-
+/* GET home page. */
+router.get('/', function(req, res, next) {
+    res.render('home/index', {
+        req: req,
+        title: 'GIF.com',
+        alert: req.flash('alert')
+    });
+    // if (req.isAuthenticated()) {
+    //     res.render('home/feed', {
+    //         req: req
+    //     })
+    // }
+    // res.render('home/index', {
+    //     req: req,
+    //     alert: req.flash('alert'),
+    // });
+});
 
 /// USERS ROUTES ///
-
 // GET request for creating a User. NOTE This must come before routes that display User (uses id).
 router.get('/users/new', isNotAuthenticated, function(req, res){
     res.render('users/new', {
@@ -490,8 +477,10 @@ router.post('/users', isNotAuthenticated, [
 
 // GET request for one User.
 router.get('/users/:id', function(req, res){
-    connection.query('SELECT id, username, datecreated, description, imageurl FROM `user` WHERE id = ?; SELECT id, imageurl FROM ' +
-        'image WHERE userid = ? ORDER BY datecreated DESC LIMIT 12;SELECT count(*) as c FROM image WHERE userid = ?;', [req.params.id, req.params.id, req.params.id], function (error, results, fields) {
+    connection.query('SELECT id, username, datecreated, description, imageurl FROM `user` WHERE id = ?; SELECT id, ' +
+        'imageurl FROM image WHERE userid = ? ORDER BY datecreated DESC LIMIT 12;SELECT count(*) as imagescount FROM ' +
+        'image WHERE userid = ?;SELECT count(*) as followingcount FROM topicfollowing WHERE following = ?;',
+        [req.params.id, req.params.id, req.params.id, req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
@@ -500,12 +489,35 @@ router.get('/users/:id', function(req, res){
         }
         res.render('users/show', {
             req: req,
-            title: 'Profile',
             results: results,
+            title: 'Profile',
             moment: moment,
             alert: req.flash('alert')
         });
     });
+});
+
+/// GET request for user followering sorted by created date in descending order limit by 12
+router.get('/users/:id/following', function(req, res){
+    connection.query('SELECT id, username, datecreated, description, imageurl FROM `user` WHERE id = ?;SELECT t.id, ' +
+        't.name, t.imageurl from topicfollowing as tf inner join topic as t on tf.followed = t.id where tf.following ' +
+        '= ? ORDER BY tf.datecreated DESC LIMIT 12; SELECT count(*) as imagescount FROM image WHERE userid = ?; SELECT' +
+        ' count(*) as followingcount FROM topicfollowing WHERE following = ?',
+        [req.params.id, req.params.id, req.params.id, req.params.id], function (error, results, fields) {
+            // error will be an Error if one occurred during the query
+            // results will contain the results of the query
+            // fields will contain information about the returned results fields (if any)
+            if (error) {
+                throw error;
+            }
+            res.render('users/following', {
+                req: req,
+                results: results,
+                title: 'User following',
+                moment: moment,
+                alert: req.flash('alert')
+            });
+        });
 });
 
 // GET request to update User.
@@ -523,8 +535,8 @@ router.get('/users/:id/edit', isAuthenticated, isSelf, function(req, res){
         //console.log(results[0].city);
         res.render('users/edit', {
             req: req,
-            title: 'Edit profile',
             result: results[0],
+            title: 'Edit profile',
             errors: req.flash('errors'),
             inputs: req.flash('inputs')
         });
@@ -711,16 +723,15 @@ router.get('/images/:id', function(req, res){
         }
         res.render('images/show', {
             req: req,
-            title: 'Photo',
             result: results[0],
+            title: 'Photo',
             moment: moment,
             alert: req.flash('alert')
         });
     });
 });
 
-
-// DELETE request to delete User.
+// DELETE request to delete Image.
 router.delete('/images/:id', isAuthenticated, function(req, res){
     connection.query('SELECT userid FROM image WHERE id = ?', [req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
@@ -746,50 +757,9 @@ router.delete('/images/:id', isAuthenticated, function(req, res){
     });
 });
 
-
 /// TOPIC ROUTES ///
 
-// get topic information, get 10 images of the topic, if current user is logged in, check if he has
-// followed topic or not if yes pass unfollow to button value else pass follow to button value
-//
-
-router.get('/topics/:id', function(req, res){
-    connection.query('SELECT id, name, description, datecreated, url FROM `topic` WHERE id = ?; SELECT id, imageurl FROM `image` WHERE topicid = ? ORDER BY datecreated DESC LIMIT 12;' +
-        'SELECT count(*) as c FROM image WHERE topicid = ?;SELECT count(*) as c2 FROM topicfollowing WHERE followed = ?', [req.params.id, req.params.id, req.params.id, req.params.id],
-        function (error, results, fields) {
-            // error will be an Error if one occurred during the query
-            // results will contain the results of the query
-            // fields will contain information about the returned results fields (if any)
-            if (error) {
-                throw error;
-            }
-            if (req.isAuthenticated()) {
-                connection.query('SELECT count(*) as C FROM topicfollowing WHERE following = ? and followed = ?;', [req.user.id, req.params.id],
-                    function (error, result, fields) {
-                        if (error) {
-                            throw error;
-                        }
-                        res.render('topics/show', {
-                            req: req,
-                            results: results,
-                            status: result[0].C,
-                            moment: moment,
-                            alert: req.flash('alert')
-                        });
-                    });
-            } else {
-                res.render('topics/show', {
-                    req: req,
-                    results: results,
-                    moment: moment,
-                    alert: req.flash('alert')
-                });
-            }
-
-        });
-});
-
-// GET request for list of all User items.
+// GET request for list of all Topic items.
 router.get('/topics', function(req, res){
     connection.query('SELECT * FROM `topic`', function (error, results, fields) {
         // error will be an Error if one occurred during the query
@@ -808,12 +778,55 @@ router.get('/topics', function(req, res){
     });
 });
 
+// get topic information, get 10 images of the topic, if current user is logged in, check if he has
+// followed topic or not if yes pass unfollow to button value else pass follow to button value
+router.get('/topics/:id', function(req, res){
+    connection.query('SELECT id, name, description, datecreated, imageurl FROM `topic` WHERE id = ?; SELECT id, ' +
+        'imageurl FROM `image` WHERE topicid = ? ORDER BY datecreated DESC LIMIT 12; SELECT count(*) as imagescount ' +
+        'FROM image WHERE topicid = ?;SELECT count(*) as followerscount FROM topicfollowing WHERE followed = ?',
+        [req.params.id, req.params.id, req.params.id, req.params.id],
+        function (error, results, fields) {
+            // error will be an Error if one occurred during the query
+            // results will contain the results of the query
+            // fields will contain information about the returned results fields (if any)
+            if (error) {
+                throw error;
+            }
+            if (req.isAuthenticated()) {
+                connection.query('SELECT count(*) as status FROM topicfollowing WHERE following = ? and followed = ?;', [req.user.id, req.params.id],
+                    function (error, result, fields) {
+                        if (error) {
+                            throw error;
+                        }
+                        res.render('topics/show', {
+                            req: req,
+                            results: results,
+                            title: 'Topic',
+                            status: result[0].status,
+                            moment: moment,
+                            alert: req.flash('alert')
+                        });
+                    });
+            } else {
+                res.render('topics/show', {
+                    req: req,
+                    results: results,
+                    title: 'Topic',
+                    moment: moment,
+                    alert: req.flash('alert')
+                });
+            }
+
+        });
+});
+
 /// GET request for topic followers sorted by created date in descending order limit by 12
 router.get('/topics/:id/followers', function(req, res){
-    connection.query('SELECT id, name, description, url FROM `topic` WHERE id = ?;SELECT u.id, u.username, u.imageurl ' +
-        'from topicfollowing as tf inner join user as u on tf.following = u.id where tf.followed = ? ' +
-        'ORDER BY tf.datecreated DESC LIMIT 12; SELECT count(*) as followers FROM topicfollowing WHERE followed = ?',
-        [req.params.id, req.params.id, req.params.id], function (error, results, fields) {
+    connection.query('SELECT id, name, description, imageurl FROM `topic` WHERE id = ?; SELECT u.id, u.username, ' +
+        'u.imageurl from topicfollowing as tf inner join user as u on tf.following = u.id where tf.followed = ? ' +
+        'ORDER BY tf.datecreated DESC LIMIT 12; SELECT count(*) as imagescount FROM image WHERE topicid = ?;' +
+        'SELECT count(*) as followerscount FROM topicfollowing WHERE followed = ?',
+        [req.params.id, req.params.id, req.params.id, req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
@@ -823,6 +836,7 @@ router.get('/topics/:id/followers', function(req, res){
         res.render('topics/followers', {
             req: req,
             results: results,
+            title: 'Topic followers',
             alert: req.flash('alert')
         });
     });
@@ -844,31 +858,6 @@ router.post('/topicfollowings', isAuthenticated, function(req, res) {
         res.json({status: 'done'});
     });
 });
-
-// DELETE request for deleting Topicfollowing.
-// router.delete('/topicfollowings/:id', isAuthenticated, function(req, res) {
-//     connection.query('SELECT following FROM topicfollowing WHERE id = ?', [req.params.id], function (error, results, fields) {
-//         // error will be an Error if one occurred during the query
-//         // results will contain the results of the query
-//         // fields will contain information about the returned results fields (if any)
-//         if (error) {
-//             throw error;
-//         }
-//         const userid = results[0].following;
-//         if (req.user.id !== userid) {
-//             res.redirect('/403');
-//         }
-//         connection.query('DELETE FROM topicfollowing WHERE id = ?', [req.params.id], function (error, results, fields) {
-//             // error will be an Error if one occurred during the query
-//             // results will contain the results of the query
-//             // fields will contain information about the returned results fields (if any)
-//             if (error) {
-//                 throw error;
-//             }
-//             res.json({status: 'done'});
-//         });
-//     });
-// });
 
 router.delete('/topicfollowings', isAuthenticated, function(req, res) {
     connection.query('DELETE FROM topicfollowing WHERE following = ? and followed = ?', [req.user.id, req.body.topicid], function (error, results, fields) {
@@ -902,6 +891,31 @@ router.delete('/topicfollowings', isAuthenticated, function(req, res) {
     //     });
     // });
 });
+
+// DELETE request for deleting Topicfollowing.
+// router.delete('/topicfollowings/:id', isAuthenticated, function(req, res) {
+//     connection.query('SELECT following FROM topicfollowing WHERE id = ?', [req.params.id], function (error, results, fields) {
+//         // error will be an Error if one occurred during the query
+//         // results will contain the results of the query
+//         // fields will contain information about the returned results fields (if any)
+//         if (error) {
+//             throw error;
+//         }
+//         const userid = results[0].following;
+//         if (req.user.id !== userid) {
+//             res.redirect('/403');
+//         }
+//         connection.query('DELETE FROM topicfollowing WHERE id = ?', [req.params.id], function (error, results, fields) {
+//             // error will be an Error if one occurred during the query
+//             // results will contain the results of the query
+//             // fields will contain information about the returned results fields (if any)
+//             if (error) {
+//                 throw error;
+//             }
+//             res.json({status: 'done'});
+//         });
+//     });
+// });
 
 /// LOGIN ROUTES ///
 

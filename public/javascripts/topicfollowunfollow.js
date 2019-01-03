@@ -7,7 +7,7 @@
 // to remove a row with current user and topic and if successful a response
 // will be sent back and text of button should be changed to follow
 
-const topicfollowingcount = document.getElementById('topicfollowingcount');
+const topicfollowerscount = document.getElementById('topicfollowerscount');
 const button = document.getElementById('followunfollow');
 button.addEventListener('click', function(event){
     if (button.innerText === 'FOLLOW') {
@@ -28,7 +28,7 @@ function followTopic(){
     }).then(response => response.json())
         .then(result => {
             button.innerText = 'UNFOLLOW';
-            topicfollowingcount.innerText = (Number(topicfollowingcount.innerText) + 1) + '';
+            topicfollowerscount.innerText = (Number(topicfollowerscount.innerText) + 1) + '';
         });
 }
 
@@ -43,7 +43,7 @@ function unfollowTopic(){
     }).then(response => response.json())
         .then(result => {
             button.innerText = 'FOLLOW';
-            topicfollowingcount.innerText = (Number(topicfollowingcount.innerText) - 1) + '';
+            topicfollowerscount.innerText = (Number(topicfollowerscount.innerText) - 1) + '';
 
         });
 }

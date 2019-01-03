@@ -13,9 +13,6 @@ let count = document.getElementsByClassName('gallery-item').length;
 const total = Number(document.getElementById('count').getAttribute('data-count'));
 let skip = count;
 let limit = 12;
-// let loading = false;
-// let finished = false;
-
 
 document.addEventListener('scroll', () => {
     const rect = loadMoreElement.getBoundingClientRect();
@@ -41,13 +38,6 @@ document.addEventListener('scroll', () => {
                         galleryElement.appendChild(div);
 
                     });
-                    // if (!result.has_more) {
-                    //     loadMoreElement.style.visibility = 'hidden';
-                    //     finished = true;
-                    // } else {
-                    //     loadMoreElement.style.visibility = 'visible';
-                    // }
-                    // loading = false;
                 });
             count = document.getElementsByClassName('gallery-item').length;
             skip = count;

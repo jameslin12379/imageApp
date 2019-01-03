@@ -16,13 +16,18 @@
                                     <% } %>
                                     <div class="et_pb_module et_pb_blurb et_pb_blurb_5 et_pb_bg_layout_light  et_pb_text_align_center  et_pb_blurb_position_top box-shadow-none pd-0 box-shadow-none" style="">
                                         <div class="et_pb_blurb_content">
-                                            <!--<div class="et_pb_main_blurb_image"><span class="et_pb_image_wrap"><img src="<%= results[0][0].imageurl %>" alt="" class="et-waypoint et_pb_animation_top et-animated"></span></div>-->
                                             <div class="et_pb_main_blurb_image width-100 height-100"><img src="<%= results[0][0].imageurl %>" alt="" class="et-waypoint et_pb_animation_top et-animated width-100p height-100p"></div>
 
                                             <div class="et_pb_blurb_container">
                                                 <h4 class="et_pb_module_header pb-14"><%= results[0][0].username %></h4>
                                                 <div class="et_pb_blurb_description">
                                                     <p>Joined <%= moment(results[0][0].datecreated).format('LL') %></p>
+
+                                                    <div class="grid mza w-20 pb-14">
+                                                        <p><%= results[2][0].imagescount %> Photos</p>
+                                                        <a class="brown" href="/users/<%= results[0][0].id %>/following"><p><%= results[3][0].followingcount %> Following</p></a>
+                                                    </div>
+
                                                     <p class="mza w-60"><%= results[0][0].description %></p>
                                                 </div>
                                             </div>
@@ -45,7 +50,7 @@
                         </div>
 
                         <% if (results[1].length > 0) { %>
-                        <div id="count" class="et_pb_section et_pb_section_1 et_section_specialty pt-none" data-count=<%= results[2][0].c %>>
+                        <div id="count" class="et_pb_section et_pb_section_1 et_section_specialty pt-none" data-count=<%= results[2][0].imagescount %>>
                             <div class="et_pb_row">
                                <div id="gallery" class="gallery">
                                    <% for(var i=0; i < results[1].length; i++) { %>
@@ -70,7 +75,7 @@
 </div>
 
 <% if (results[1].length > 0) { %>
-<script src="/javascripts/userloadmore.js"></script>
+<script src="/javascripts/userloadmoreimages.js"></script>
 <% } %>
 
 <% include ../partials/footer %>
