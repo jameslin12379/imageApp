@@ -16,7 +16,8 @@ var moment = require('moment');
 var faker = require('faker');
 const fs = require('fs');
 const request = require('request');
-const cheerio = require('cheerio')
+const cheerio = require('cheerio');
+var randomWords = require('random-words');
 
 // var script = document.createElement('script');
 // script.src = 'https://code.jquery.com/jquery-3.3.1.js';
@@ -152,80 +153,168 @@ router.get('/createusers', function(req, res){
 // for each topic, find 30 images from the internet,
 // download images, upload them to AWS S3, get
 // imageurl and save it to DB
-router.get('/createimages', function(req, res){
-    connection.query('select * from topic', function(error, results, fields){
-        if (error) {
-            throw error;
-        }
-        for (let i = 0; i < results.length; i++){
-            let topicname = results[i].name;
-            // for (let j = 0; j < 5; j++){
-                // get a picture from unsplash.com related to current topic  and upload it
-                // to AWS S3, get imageurl back and save it along with a randomly generated userid
-                // from the 10000 user ids into DB and repeat
-                // use unsplash API to get image (upper limit of 50 per hour)
 
-                // https://images.unsplash.com/photo-1505664194779-8beaceb93744?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=100&q=60
-                request(`https://unsplash.com/search/photos/${topicname}`, function (error, response, body) {
-                    if (error) {
-                        throw error;
-                    }
-                    let $ = cheerio.load(body);
+// router.get('/createimages', function(req, res){
+//     connection.query('select * from topic', function(error, results, fields){
+//         if (error) {
+//             throw error;
+//         }
+//         for (let i = 0; i < results.length; i++){
+//             let topicname = results[i].name;
+//             // for (let j = 0; j < 5; j++){
+//                 // get a picture from unsplash.com related to current topic  and upload it
+//                 // to AWS S3, get imageurl back and save it along with a randomly generated userid
+//                 // from the 10000 user ids into DB and repeat
+//                 // use unsplash API to get image (upper limit of 50 per hour)
+//
+//                 // https://images.unsplash.com/photo-1505664194779-8beaceb93744?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=100&q=60
+//                 request(`https://www.pexels.com/search/${topicname}/`, function (error, response, body) {
+//                     if (error) {
+//                         throw error;
+//                     }
+//                     let $ = cheerio.load(body);
+//                     let result = $('img.photo-item__img');
+//                     let validurl = [];
+//                     result.each(function (index, elem) {
+//                         if (!(validurl.includes(elem.attribs.src))) {
+//                             validurl.push(elem.attribs.src);
+//                         }
+//                     });
+//                     for (let j = 0; j < validurl.length; j++) {
+//                         const options = {
+//                             url: validurl[j],
+//                             encoding: null
+//                         };
+//                         request(options, function (e, r, b) {
+//                             const uploadParams = {
+//                                 Bucket: 'imageappbucket', // pass your bucket name
+//                                 Key: 'images/' + validurl[j].substring(validurl[j].lastIndexOf('/')+1, validurl[j].lastIndexOf('?')), // file will be saved as testBucket/contacts.csv
+//                                 Body: b,
+//                                 ContentType: 'image/jpeg'
+//                             };
+//                             s3.upload(uploadParams, function (err, data) {
+//                                 if (err) {
+//                                     console.log("Error", err);
+//                                 }
+//                                 if (data) {
+//                                     let userid = getRandomIntInclusive(1, 10000);
+//                                     connection.query('INSERT INTO image (imageurl, userid, topicid) VALUES (?, ?, ?)', [data.Location,
+//                                         userid, results[i].id], function (error, results, fields) {
+//                                         // error will be an Error if one occurred during the query
+//                                         // results will contain the results of the query
+//                                         // fields will contain information about the returned results fields (if any)
+//                                         if (error) {
+//                                             throw error;
+//                                         }
+//                                     });
+//                                 }
+//                             });
+//
+//                         });
+//
+//                     }
+//
+//
+//
+//
+//
+//                     // let $ = cheerio.load(body);
+//                         // let images = $('._1pn7R img').html();
+//                         // console.log(images);
+//                     // console.log($('._2zEKz').html());
+//                     // console.log($('._2zEKz').attr('srcset'));
+//
+//
+//                     // get link for each of images and send request to link and retrieve
+//                     // image data to upload it to AWS S3 and get imageurl back and
+//                     // save it along with randomized userid as a new image row into the DB
+//
+//                     // console.log(topicname);
+//
+//
+//                     // $('h2.title').text('Hello there!')
+//                     // $('h2').addClass('welcome')
+//                     // var imgs = $(body).find('img');
+//                     // console.log(imgs);
+//                     // from topic page extract image links
+//                 });
+//                 // const uploadParams = {
+//                 //     Bucket: 'imageappbucket', // pass your bucket name
+//                 //     Key: 'images/' + req.file.originalname, // file will be saved as testBucket/contacts.csv
+//                 //     Body: req.file.buffer,
+//                 //     ContentType: req.file.mimetype
+//                 // };
+//                 // s3.upload (uploadParams, function (err, data) {
+//                 //     if (err) {
+//                 //         console.log("Error", err);
+//                 //     } if (data) {
+//                 //         connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
+//                 //             'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
+//                 //             req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
+//                 //             // error will be an Error if one occurred during the query
+//                 //             // results will contain the results of the query
+//                 //             // fields will contain information about the returned results fields (if any)
+//                 //             if (error) {
+//                 //                 throw error;
+//                 //             }
+//                 //             req.flash('alert', 'Photo uploaded.');
+//                 //             res.redirect(`/users/${req.user.id}`);
+//                 //         });
+//                 //         // console.log("Upload Success", data.Location);
+//                 //     }
+//                 // });
+//             // }
+//         }
+//     });
+// });
 
-                    let result = $('img._2zEKz');
+function getRandomIntInclusive(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
+}
 
-                    // let $ = cheerio.load(body);
-                        // let images = $('._1pn7R img').html();
-                        // console.log(images);
-                    // console.log($('._2zEKz').html());
-                    // console.log($('._2zEKz').attr('srcset'));
+// create 10000 different profile pictures for 10000 users
+// setup a list to hold 10000 urls and initially it is empty
+// check if list is 10000 and if not send GET request to pixel image
+// by randomly selecting a letter from the 26 letters and append it to
+// get request and from the result returned (html string) parse it using
+// cheerios and obtain the first image url and append it to list
+// repeat and if next item retrieved is identical as last one repeat
+// until it is different
+// when the entire list is filled, loop over it and for each imageurl
+// download the file, upload it to AWS S3, get returned imageurl,
+// update it to current user's imageurl setting
+// By end of loop, every user should have a new profile picture
+
+// to AWS S3 and get imageurl and update
+// router.get('/createprofileimages', function(req,res) {
+//     // letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
+//
+//     // numbers = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+//     randomwords = [];
+//
+//     while (randomwords.length !== 10000) {
+//         let word = randomWords();
+//         if (!(randomwords.includes(word))) {
+//             randomwords.push(word);
+//         }
+//     }
+//     for (let i = 0; i < randomwords.length; i++){
+//         // var letter = letters[Math.floor(Math.random()*letters.length)];
+//         // var number = numbers[Math.floor(Math.random()*numbers.length)];
+//         request(`https://www.pexels.com/search/${randomwords[i]}/`, function(e,r,b){
+//             let $ = cheerio.load(b);
+//             let result = $('img.photo-item__img');
+//             console.log(result);
+//         });
+//     }
+// });
 
 
-                    // get link for each of images and send request to link and retrieve
-                    // image data to upload it to AWS S3 and get imageurl back and
-                    // save it along with randomized userid as a new image row into the DB
 
-                    // console.log(topicname);
-
-
-                    // $('h2.title').text('Hello there!')
-                    // $('h2').addClass('welcome')
-                    // var imgs = $(body).find('img');
-                    // console.log(imgs);
-                    // from topic page extract image links
-                });
-                // const uploadParams = {
-                //     Bucket: 'imageappbucket', // pass your bucket name
-                //     Key: 'images/' + req.file.originalname, // file will be saved as testBucket/contacts.csv
-                //     Body: req.file.buffer,
-                //     ContentType: req.file.mimetype
-                // };
-                // s3.upload (uploadParams, function (err, data) {
-                //     if (err) {
-                //         console.log("Error", err);
-                //     } if (data) {
-                //         connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
-                //             'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
-                //             req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
-                //             // error will be an Error if one occurred during the query
-                //             // results will contain the results of the query
-                //             // fields will contain information about the returned results fields (if any)
-                //             if (error) {
-                //                 throw error;
-                //             }
-                //             req.flash('alert', 'Photo uploaded.');
-                //             res.redirect(`/users/${req.user.id}`);
-                //         });
-                //         // console.log("Upload Success", data.Location);
-                //     }
-                // });
-            // }
-        }
-    });
-});
-
-router.get('/createimage', function(req,res) {
-    request(`https://www.pexels.com/search/history/`, function (error, response, body) {
+router.get('/createimages', function(req,res) {
+    request(`https://www.pexels.com/search/vintage/`, function (error, response, body) {
         if (error) {
             throw error;
         }
@@ -235,187 +324,104 @@ router.get('/createimage', function(req,res) {
         // console.log(images);
         let result = $('img.photo-item__img');
         let validurl = [];
-        result.each(function (i, elem) {
+        result.each(function (index, elem) {
             if (!(validurl.includes(elem.attribs.src))) {
                 validurl.push(elem.attribs.src);
             }
         });
-        // result.each(function (i, elem) {
-        //     request(elem.attribs.src, function (e, r, b) {
-        //         const uploadParams = {
-        //             Bucket: 'imageappbucket', // pass your bucket name
-        //             Key: 'images/' + elem.attribs.src.substring(elem.attribs.src.lastIndexOf('/')+1, elem.attribs.src.lastIndexOf('?')), // file will be saved as testBucket/contacts.csv
-        //             Body: b,
-        //             ContentType: 'image/jpeg'
-        //         };
-        //         s3.upload(uploadParams, function (err, data) {
-        //             if (err) {
-        //                 console.log("Error", err);
-        //             }
-        //             if (data) {
-        //                 console.log(data);
-        //
-        //                 // connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
-        //                 //     'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
-        //                 //     req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
-        //                 //     // error will be an Error if one occurred during the query
-        //                 //     // results will contain the results of the query
-        //                 //     // fields will contain information about the returned results fields (if any)
-        //                 //     if (error) {
-        //                 //         throw error;
-        //                 //     }
-        //                 //     req.flash('alert', 'Photo uploaded.');
-        //                 //     res.redirect(`/users/${req.user.id}`);
-        //                 // });
-        //                 // console.log("Upload Success", data.Location);
-        //             }
-        //         });
-        //     });
-            console.log(validurl);
+        for (let i = 0; i < validurl.length; i++) {
+            const options = {
+                url: validurl[i],
+                encoding: null
+            };
+            request(options, function (e, r, b) {
+                if (error) {
+                    throw error;
+                }
+                const uploadParams = {
+                    Bucket: 'imageappbucket', // pass your bucket name
+                    Key: 'images/' + validurl[i].substring(validurl[i].lastIndexOf('/')+1, validurl[i].lastIndexOf('?')), // file will be saved as testBucket/contacts.csv
+                    Body: b,
+                    ContentType: 'image/jpeg'
+                };
+                s3.upload(uploadParams, function (err, data) {
+                    if (err) {
+                        console.log("Error", err);
+                    }
+                    if (data) {
 
-            // console.log(elem.attribs.src);
-        });
-        // get link for each of images and send request to link and retrieve
-        // image data to upload it to AWS S3 and get imageurl back and
-        // save it along with randomized userid as a new image row into the DB
+                            let userid = getRandomIntInclusive(1, 10000);
+                            connection.query('INSERT INTO image (imageurl, userid, topicid) VALUES (?, ?, ?)', [data.Location,
+                                userid, 81], function (error, results, fields) {
+                                // error will be an Error if one occurred during the query
+                                // results will contain the results of the query
+                                // fields will contain information about the returned results fields (if any)
+                                if (error) {
+                                    throw error;
+                                }
+                                console.log('saved');
+                            });
+                    }
+                });
 
-        // console.log(topicname);
+            });
 
-
-        // $('h2.title').text('Hello there!')
-        // $('h2').addClass('welcome')
-        // var imgs = $(body).find('img');
-        // console.log(imgs);
-        // from topic page extract image links
-    // });
+        }
+    });
 });
 
-// router.get('/createimage', function(req,res){
-//     request(`https://unsplash.com/search/photos/nature`, function (error, response, body) {
-//         if (error) {
-//             throw error;
-//         }
-//         let $ = cheerio.load(body);
-//
-//         // let images = $('._1pn7R img').html();
-//         // console.log(images);
-//         let result = $('img._2zEKz');
-//         let validurl = [];
-//         result.each(function(i, elem){
-//
-//             if (!(validurl.includes(elem.attribs.src))) {
-//                 validurl.push(elem.attribs.src);
-//             }
-//             // request(elem.attribs.src, function (e,r,b) {
-//
-//                 // const uploadParams = {
-//                 //     Bucket: 'imageappbucket', // pass your bucket name
-//                 //     Key: 'images/' + elem.attribs.src.substring(28,elem.attribs.src.lastIndexOf('?')), // file will be saved as testBucket/contacts.csv
-//                 //     Body: b,
-//                 //     ContentType: 'image/jpeg'
-//                 // };
-//                 // s3.upload (uploadParams, function (err, data) {
-//                 //     if (err) {
-//                 //         console.log("Error", err);
-//                 //     } if (data) {
-//                 //         console.log(data);
-//                 //
-//                 //         // connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
-//                 //         //     'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
-//                 //         //     req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
-//                 //         //     // error will be an Error if one occurred during the query
-//                 //         //     // results will contain the results of the query
-//                 //         //     // fields will contain information about the returned results fields (if any)
-//                 //         //     if (error) {
-//                 //         //         throw error;
-//                 //         //     }
-//                 //         //     req.flash('alert', 'Photo uploaded.');
-//                 //         //     res.redirect(`/users/${req.user.id}`);
-//                 //         // });
-//                 //         // console.log("Upload Success", data.Location);
-//                 //     }
-//                 // });
-//             });
-//             console.log(validurl);
-//             // console.log(elem.attribs.src);
-//         });
-//         // get link for each of images and send request to link and retrieve
-//         // image data to upload it to AWS S3 and get imageurl back and
-//         // save it along with randomized userid as a new image row into the DB
-//
-//         // console.log(topicname);
-//
-//
-//         // $('h2.title').text('Hello there!')
-//         // $('h2').addClass('welcome')
-//         // var imgs = $(body).find('img');
-//         // console.log(imgs);
-//         // from topic page extract image links
-//     });
 
+router.get('/createimage', function(req,res){
+    request(`https://www.pexels.com/search/comics/`, function (error, response, body) {
+        if (error) {
+            throw error;
+        }
+        let $ = cheerio.load(body);
 
-// router.get('/createimage', function(req,res) {
-//     request(`https://images.unsplash.com/photo-1505664194779-8beaceb93744?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80`, function (error, response, body) {
-//         if (error) {
-//             throw error;
-//         }
-//         const uploadParams = {
-//             Bucket: 'imageappbucket', // pass your bucket name
-//             Key: 'images/' + , // file will be saved as testBucket/contacts.csv
-//             Body: body,
-//             ContentType: req.file.mimetype
-//         };
-//         s3.upload(uploadParams, function (err, data) {
-//             if (err) {
-//                 console.log("Error", err);
-//             } if (data) {
-//                 connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
-//                     'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
-//                     req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
-//                     // error will be an Error if one occurred during the query
-//                     // results will contain the results of the query
-//                     // fields will contain information about the returned results fields (if any)
-//                     if (error) {
-//                         throw error;
-//                     }
-//                     req.flash('alert', 'Photo uploaded.');
-//                     res.redirect(`/users/${req.user.id}`);
-//                 });
-//                 // console.log("Upload Success", data.Location);
-//             }
-//         });
-//
-//         // let $ = cheerio.load(body);
-//         // // let images = $('._1pn7R img').html();
-//         // // console.log(images);
-//         // let result = $('._2zEKz');
-//         //
-//         // // console.log(result);
-//         // result.each(function(i, elem) {
-//         //     request(elem.attribs.src, function (e,r,b) {
-//         //         console.log(typeof b);
-//         //     });
-//         //     // console.log(elem.attribs.src);
-//         // });
-//
-//
-//
-//
-//
-//         // get link for each of images and send request to link and retrieve
-//         // image data to upload it to AWS S3 and get imageurl back and
-//         // save it along with randomized userid as a new image row into the DB
-//
-//         // console.log(topicname);
-//
-//
-//         // $('h2.title').text('Hello there!')
-//         // $('h2').addClass('welcome')
-//         // var imgs = $(body).find('img');
-//         // console.log(imgs);
-//         // from topic page extract image links
-//     });
-// }
+        // let images = $('._1pn7R img').html();
+        // console.log(images);
+        let result = $('img.photo-item__img');
+        let validurl = [];
+        result.each(function(i, elem){
+
+            if (!(validurl.includes(elem.attribs.src))) {
+                validurl.push(elem.attribs.src);
+            }
+            });
+            console.log(validurl);
+        });
+    });
+
+// for each topic, generate 50 followers (make sure there are no repeating follower) (3500 topicfollowing rows)
+router.get('/createtopicfollowings', function(req,res) {
+    connection.query('SELECT * FROM topic', function(e, r, f){
+        if (e){
+            throw error;
+        }
+        for (let i = 0; i < r.length; i++){
+            let topicid = r[i].id;
+            followers = [];
+            while (followers.length !== 50) {
+                let userid = getRandomIntInclusive(1, 10000);
+                if (!(followers.includes(userid))){
+                    followers.push(userid);
+                }
+            }
+            for (let j = 0; j < followers.length; j++) {
+                connection.query('INSERT INTO topicfollowing (following, followed) VALUES (?, ?)', [followers[j], topicid], function (error, results, fields) {
+                    // error will be an Error if one occurred during the query
+                    // results will contain the results of the query
+                    // fields will contain information about the returned results fields (if any)
+                    if (error) {
+                        throw error;
+                    }
+
+                });
+            }
+
+        }
+    });
+});
 
 
 
@@ -802,17 +808,18 @@ router.get('/topics', function(req, res){
     });
 });
 
-/// GET request for topic followers sorted by created date in descending order limit by 15
+/// GET request for topic followers sorted by created date in descending order limit by 12
 router.get('/topics/:id/followers', function(req, res){
-    connection.query('SELECT id, name, description, datecreated, url FROM `topic` WHERE id = ?;select u.id, u.username, u.imageurl from topicfollowing as tf inner join user as u on tf.following = u.id where tf.followed = ? ' +
-        'ORDER BY tf.datecreated DESC LIMIT 15; SELECT count(*) as c2 FROM topicfollowing WHERE followed = ?', [req.params.id, req.params.id, req.params.id], function (error, results, fields) {
+    connection.query('SELECT id, name, description, url FROM `topic` WHERE id = ?;SELECT u.id, u.username, u.imageurl ' +
+        'from topicfollowing as tf inner join user as u on tf.following = u.id where tf.followed = ? ' +
+        'ORDER BY tf.datecreated DESC LIMIT 12; SELECT count(*) as followers FROM topicfollowing WHERE followed = ?',
+        [req.params.id, req.params.id, req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
         if (error) {
             throw error;
         }
-        console.log(results);
         res.render('topics/followers', {
             req: req,
             results: results,

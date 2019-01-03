@@ -1,0 +1,115 @@
+SETUP LOCAL ENVIRONMENT
+-Nginx server running at port 80 and 3000
+-Nodejs/App server running at port 3001
+-Nodejs/API server running at port 3002
+-MySQL server running at port 3306
+-Requests related to App are sent using port 80, redirected by Nginx to port 3001, and handled
+by Nodejs/App server and requests related to API are sent using port 3000, redirected by Nginx to port
+3002, and handled by Nodejs/API server
+-Use express to generate project folder for App
+-Use loopback4 to generate project folder for API
+-Git is installed and is initialized in both folders so all changes are
+added, committed, and pushed to remote repository throughout development stage
+-NPM and Node are installed to manage dependencies and servers for
+both folders respectively
+
+-For app, define the following:
+-> Routes
+--> users
+- /users/new GET
+- /users POST
+- /users/id GET
+- /users GET (Disabled)
+- /users/id/following GET
+- /users/id/edit GET
+- /users/id PUT
+- /users/id DELETE
+--> images
+- /images/new GET
+- /images POST
+- /images/id GET
+- /images GET (Disabled)
+- /images/id/edit GET (Disabled)
+- /images/id PUT (Disabled)
+- /images/id DELETE
+--> topics
+- /topics/new GET (Disabled)
+- /topics POST (Disabled)
+- /topics/id GET
+- /topics GET
+- /topics/id/followers GET
+- /topics/id/edit GET (Disabled)
+- /topics/id PUT (Disabled)
+- /topics/id DELETE (Disabled)
+--> topicfollowings
+- /topicfollowings/new GET (Replaced by follow button on topic page)
+- /topicfollowings POST
+- /topicfollowings/id GET (Disabled)
+- /topicfollowings GET (Disabled)
+- /topicfollowings/id/edit GET (Disabled)
+- /topicfollowings/id PUT (Disabled)
+- /topicfollowings/id DELETE
+--> other routes
+- /login GET
+- /login POST
+- /logout GET
+- /403 GET
+- /404 GET
+
+-> Controllers
+-> Views
+-> Models
+-For API, define routes, controllers, views, and models as needed
+- In this case, /images routes, ...
+-For Database, define tables
+--> user
+--> image
+--> topic
+--> topicfollowing
+
+SETUP PRODUCTION ENVIRONMENT
+-Setup an AWS account
+-Purchase two domain names through Route 53 (www.gif67.com, api.gif67.com) and
+link them to the public IP of an EC2 instance used as Nginx web server
+-Nginx web server running on an EC2 instance at port 80, 443
+--> It is protected by a security group (firewall) to only allow 80, 443, and 22 incoming
+traffic
+--> SSH server is running at this EC2 instance
+--> Nginx web server is configured so 80 and 443 traffic from domain name of www.gif67.com
+are redirected to another EC2 instance at private IP and 80 and 443 traffic from domain name
+of api.gif67.com are redirected to another EC2 instance at another private IP
+-An EC2 instance with Nodejs/App server running at port 3000 and 22, protected by security
+group to only allow 3000 and 22 incoming traffic from Nginx web server
+--> This instance is used for App and has Git, Node, NPM, PM2 installed
+--> It clones the latest App project folder from Github repository
+-An EC2 instance with Nodejs/App server running at port 3000 and 22, protected by security
+group to only allow 3000 and 22 incoming traffic from Nginx web server
+--> This instance is used for API and has Git, Node, NPM, and PM2 installed
+--> It clones the latest API project folder from Github repository
+-A MySQL server running at port 3306 on RDS, protected by security group to only allow
+3306 incoming traffic from the two EC2 instances
+--> Export a dump file from local MySQL server and import it into this server to obtain
+identical structure and data
+-S3 is used to host user uploaded images, profile pictures, and topic pictures
+
+Others
+-AJAX is implemented to fetch more data for topic page, user page, topics/id/followers page, and
+users/id/following page
+-.env files are used to load credentials in both environments
+
+Design
+-Wordpress themes (Divi) are referenced for design
+
+Automation
+-Packages such as faker are used to generate sample data for users, images, and topicfollowings
+
+Plan:
+Build three projects
+- one would be an image upload web app
+- one would be a video upload web app
+- one would be an post upload web app
+
+
+
+
+

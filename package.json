@@ -29,6 +29,7 @@
     "mysql": "^2.16.0",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
+    "random-words": "^1.1.0",
     "request": "^2.88.0"
   },
   "devDependencies": {

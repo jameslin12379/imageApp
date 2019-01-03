@@ -55,18 +55,3 @@ document.addEventListener('scroll', () => {
 
     }
 });
-
-// function loadMore() {
-//     skip += limit;
-//     listAllImages(false);
-// }
-//
-// function listAllImages(reset = true) {
-//     loading = true;
-//     // if (reset) {
-//     //     mewsElement.innerHTML = '';
-//     //     skip = 0;
-//     //     finished = false;
-//     // }
-//
-// }
