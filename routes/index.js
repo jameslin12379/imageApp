@@ -18,81 +18,7 @@ const fs = require('fs');
 const request = require('request');
 const cheerio = require('cheerio');
 var randomWords = require('random-words');
-
-function isAuthenticated(req, res, next) {
-    // do any checks you want to in here
-
-    // CHECK THE USER STORED IN SESSION FOR A CUSTOM VARIABLE
-    // you can do this however you want with whatever variables you set up
-    if (req.isAuthenticated())
-        return next();
-
-    // IF A USER ISN'T LOGGED IN, THEN REDIRECT THEM SOMEWHERE
-    res.redirect('/login');
-}
-
-function isSelf(req, res, next) {
-    // do any checks you want to in here
-
-    // CHECK THE USER STORED IN SESSION FOR A CUSTOM VARIABLE
-    // you can do this however you want with whatever variables you set up
-    if (req.user.id.toString() === req.params.id){
-        return next();
-    }
-    // IF A USER ISN'T LOGGED IN, THEN REDIRECT THEM SOMEWHERE
-    res.redirect('/403');
-}
-
-function isNotAuthenticated(req, res, next) {
-    // do any checks you want to in here
-
-    // CHECK THE USER STORED IN SESSION FOR A CUSTOM VARIABLE
-    // you can do this however you want with whatever variables you set up
-    if (!(req.isAuthenticated())){
-        return next();
-    }
-
-    // IF A USER IS LOGGED IN, THEN REDIRECT THEM SOMEWHERE
-    res.redirect('/403');
-}
-
-function isAdmin(req, res, next) {
-    // do any checks you want to in here
-
-    // CHECK THE USER STORED IN SESSION FOR A CUSTOM VARIABLE
-    // you can do this however you want with whatever variables you set up
-    if (req.user.username === 'admin') {
-        return next();
-    }
-
-    // IF A USER IS NOT ADMIN, THEN REDIRECT THEM SOMEWHERE
-    res.redirect('/403');
-}
-
-function isAdminOrSelf(req, res, next) {
-    // do any checks you want to in here
-
-    // CHECK THE USER STORED IN SESSION FOR A CUSTOM VARIABLE
-    // you can do this however you want with whatever variables you set up
-    if (req.user.username === 'admin' || req.user.id.toString() === req.params.id ) {
-        return next();
-    }
-
-    // IF A USER IS NOT ADMIN, THEN REDIRECT THEM SOMEWHERE
-    res.redirect('/403');
-}
-
-function isNotAuthenticatedOrAdmin(req, res, next) {
-    // do any checks you want to in here
-
-    // CHECK THE USER STORED IN SESSION FOR A CUSTOM VARIABLE
-    // you can do this however you want with whatever variables you set up
-    if ((!(req.isAuthenticated())) || req.user.isadmin) {
-        return next();
-    }
-    // IF A USER IS NOT ADMIN, THEN REDIRECT THEM SOMEWHERE
-    res.redirect('/403');
-}
+let mysql = require('mysql');
 
 // AUTOMATION
 // Generate 10000 users
@@ -126,167 +52,11 @@ router.get('/createusers', function(req, res){
     }
 });
 
-// Generate 30 images for each topic (2100 images)
-// for each topic, find 30 images from the internet,
-// download images, upload them to AWS S3, get
-// imageurl and save it to DB
-
-// router.get('/createimages', function(req, res){
-//     connection.query('select * from topic', function(error, results, fields){
-//         if (error) {
-//             throw error;
-//         }
-//         for (let i = 0; i < results.length; i++){
-//             let topicname = results[i].name;
-//             // for (let j = 0; j < 5; j++){
-//                 // get a picture from unsplash.com related to current topic  and upload it
-//                 // to AWS S3, get imageurl back and save it along with a randomly generated userid
-//                 // from the 10000 user ids into DB and repeat
-//                 // use unsplash API to get image (upper limit of 50 per hour)
-//
-//                 // https://images.unsplash.com/photo-1505664194779-8beaceb93744?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=100&q=60
-//                 request(`https://www.pexels.com/search/${topicname}/`, function (error, response, body) {
-//                     if (error) {
-//                         throw error;
-//                     }
-//                     let $ = cheerio.load(body);
-//                     let result = $('img.photo-item__img');
-//                     let validurl = [];
-//                     result.each(function (index, elem) {
-//                         if (!(validurl.includes(elem.attribs.src))) {
-//                             validurl.push(elem.attribs.src);
-//                         }
-//                     });
-//                     for (let j = 0; j < validurl.length; j++) {
-//                         const options = {
-//                             url: validurl[j],
-//                             encoding: null
-//                         };
-//                         request(options, function (e, r, b) {
-//                             const uploadParams = {
-//                                 Bucket: 'imageappbucket', // pass your bucket name
-//                                 Key: 'images/' + validurl[j].substring(validurl[j].lastIndexOf('/')+1, validurl[j].lastIndexOf('?')), // file will be saved as testBucket/contacts.csv
-//                                 Body: b,
-//                                 ContentType: 'image/jpeg'
-//                             };
-//                             s3.upload(uploadParams, function (err, data) {
-//                                 if (err) {
-//                                     console.log("Error", err);
-//                                 }
-//                                 if (data) {
-//                                     let userid = getRandomIntInclusive(1, 10000);
-//                                     connection.query('INSERT INTO image (imageurl, userid, topicid) VALUES (?, ?, ?)', [data.Location,
-//                                         userid, results[i].id], function (error, results, fields) {
-//                                         // error will be an Error if one occurred during the query
-//                                         // results will contain the results of the query
-//                                         // fields will contain information about the returned results fields (if any)
-//                                         if (error) {
-//                                             throw error;
-//                                         }
-//                                     });
-//                                 }
-//                             });
-//
-//                         });
-//
-//                     }
-//
-//
-//
-//
-//
-//                     // let $ = cheerio.load(body);
-//                         // let images = $('._1pn7R img').html();
-//                         // console.log(images);
-//                     // console.log($('._2zEKz').html());
-//                     // console.log($('._2zEKz').attr('srcset'));
-//
-//
-//                     // get link for each of images and send request to link and retrieve
-//                     // image data to upload it to AWS S3 and get imageurl back and
-//                     // save it along with randomized userid as a new image row into the DB
-//
-//                     // console.log(topicname);
-//
-//
-//                     // $('h2.title').text('Hello there!')
-//                     // $('h2').addClass('welcome')
-//                     // var imgs = $(body).find('img');
-//                     // console.log(imgs);
-//                     // from topic page extract image links
-//                 });
-//                 // const uploadParams = {
-//                 //     Bucket: 'imageappbucket', // pass your bucket name
-//                 //     Key: 'images/' + req.file.originalname, // file will be saved as testBucket/contacts.csv
-//                 //     Body: req.file.buffer,
-//                 //     ContentType: req.file.mimetype
-//                 // };
-//                 // s3.upload (uploadParams, function (err, data) {
-//                 //     if (err) {
-//                 //         console.log("Error", err);
-//                 //     } if (data) {
-//                 //         connection.query('INSERT INTO image (imageurl, userid, topicid, originalname, ' +
-//                 //             'encoding, mimetype, size) VALUES (?, ?, ?, ?, ?, ?, ?)', [data.Location,
-//                 //             req.user.id, topic, req.file.originalname, req.file.encoding, req.file.mimetype, req.file.size], function (error, results, fields) {
-//                 //             // error will be an Error if one occurred during the query
-//                 //             // results will contain the results of the query
-//                 //             // fields will contain information about the returned results fields (if any)
-//                 //             if (error) {
-//                 //                 throw error;
-//                 //             }
-//                 //             req.flash('alert', 'Photo uploaded.');
-//                 //             res.redirect(`/users/${req.user.id}`);
-//                 //         });
-//                 //         // console.log("Upload Success", data.Location);
-//                 //     }
-//                 // });
-//             // }
-//         }
-//     });
-// });
-
 function getRandomIntInclusive(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
 }
-
-// create 10000 different profile pictures for 10000 users
-// setup a list to hold 10000 urls and initially it is empty
-// check if list is 10000 and if not send GET request to pixel image
-// by randomly selecting a letter from the 26 letters and append it to
-// get request and from the result returned (html string) parse it using
-// cheerios and obtain the first image url and append it to list
-// repeat and if next item retrieved is identical as last one repeat
-// until it is different
-// when the entire list is filled, loop over it and for each imageurl
-// download the file, upload it to AWS S3, get returned imageurl,
-// update it to current user's imageurl setting
-// By end of loop, every user should have a new profile picture
-
-// to AWS S3 and get imageurl and update
-// router.get('/createprofileimages', function(req,res) {
-//     // letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
-//
-//     // numbers = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
-//     randomwords = [];
-//
-//     while (randomwords.length !== 10000) {
-//         let word = randomWords();
-//         if (!(randomwords.includes(word))) {
-//             randomwords.push(word);
-//         }
-//     }
-//     for (let i = 0; i < randomwords.length; i++){
-//         // var letter = letters[Math.floor(Math.random()*letters.length)];
-//         // var number = numbers[Math.floor(Math.random()*numbers.length)];
-//         request(`https://www.pexels.com/search/${randomwords[i]}/`, function(e,r,b){
-//             let $ = cheerio.load(b);
-//             let result = $('img.photo-item__img');
-//             console.log(result);
-//         });
-//     }
-// });
 
 router.get('/createimages', function(req,res) {
     request(`https://www.pexels.com/search/vintage/`, function (error, response, body) {
@@ -324,17 +94,17 @@ router.get('/createimages', function(req,res) {
                         console.log("Error", err);
                     }
                     if (data) {
-                            let userid = getRandomIntInclusive(1, 10000);
-                            connection.query('INSERT INTO image (imageurl, userid, topicid) VALUES (?, ?, ?)', [data.Location,
-                                userid, 81], function (error, results, fields) {
-                                // error will be an Error if one occurred during the query
-                                // results will contain the results of the query
-                                // fields will contain information about the returned results fields (if any)
-                                if (error) {
-                                    throw error;
-                                }
-                                console.log('saved');
-                            });
+                        let userid = getRandomIntInclusive(1, 10000);
+                        connection.query('INSERT INTO image (imageurl, userid, topicid) VALUES (?, ?, ?)', [data.Location,
+                            userid, 81], function (error, results, fields) {
+                            // error will be an Error if one occurred during the query
+                            // results will contain the results of the query
+                            // fields will contain information about the returned results fields (if any)
+                            if (error) {
+                                throw error;
+                            }
+                            console.log('saved');
+                        });
                     }
                 });
 
@@ -360,10 +130,10 @@ router.get('/createimage', function(req,res){
             if (!(validurl.includes(elem.attribs.src))) {
                 validurl.push(elem.attribs.src);
             }
-            });
-            console.log(validurl);
         });
+        console.log(validurl);
     });
+});
 
 // for each topic, generate 50 followers (make sure there are no repeating follower) (3500 topicfollowing rows)
 router.get('/createtopicfollowings', function(req,res) {
@@ -396,22 +166,159 @@ router.get('/createtopicfollowings', function(req,res) {
     });
 });
 
+// Middlewares
+function isAuthenticated(req, res, next) {
+    // do any checks you want to in here
+
+    // CHECK THE USER STORED IN SESSION FOR A CUSTOM VARIABLE
+    // you can do this however you want with whatever variables you set up
+    if (req.isAuthenticated())
+        return next();
+    // IF A USER ISN'T LOGGED IN, THEN REDIRECT THEM SOMEWHERE
+    res.redirect('/login');
+}
+
+function isSelf(req, res, next) {
+    // do any checks you want to in here
+
+    // CHECK THE USER STORED IN SESSION FOR A CUSTOM VARIABLE
+    // you can do this however you want with whatever variables you set up
+    if (req.user.id.toString() === req.params.id){
+        return next();
+    }
+    // IF A USER ISN'T LOGGED IN, THEN REDIRECT THEM SOMEWHERE
+    res.redirect('/403');
+}
+
+function isNotAuthenticated(req, res, next) {
+    // do any checks you want to in here
+
+    // CHECK THE USER STORED IN SESSION FOR A CUSTOM VARIABLE
+    // you can do this however you want with whatever variables you set up
+    if (!(req.isAuthenticated())){
+        return next();
+    }
+    // IF A USER IS LOGGED IN, THEN REDIRECT THEM SOMEWHERE
+    res.redirect('/403');
+}
+
+function resourceExists(req, res, next) {
+    // let table = '';
+    let query = '';
+    let l = req._parsedOriginalUrl.path[1];
+    switch (l) {
+        case 'u':
+            query = 'SELECT id FROM user';
+            break;
+        case 'i':
+            query = 'SELECT id FROM image';
+            break;
+        case 't':
+            query = 'SELECT id FROM topic';
+            break;
+    }
+    var connection = mysql.createConnection({
+        host     : process.env.HOSTNAME,
+        user     : process.env.USERNAME,
+        password : process.env.PASSWORD,
+        port     : process.env.PORT,
+        database : process.env.DB_NAME,
+        multipleStatements: true
+    });
+    connection.query(query + ' WHERE id = ?', [Number(req.params.id)], function (error, results, fields) {
+        // error will be an Error if one occurred during the query
+        // results will contain the results of the query
+        // fields will contain information about the returned results fields (if any)
+        if (error) {
+            throw error;
+        }
+        if (results.length === 0){
+            res.redirect('/404');
+        }
+        return next();
+    });
+}
+
+//
+// function isAdmin(req, res, next) {
+//     // do any checks you want to in here
+//
+//     // CHECK THE USER STORED IN SESSION FOR A CUSTOM VARIABLE
+//     // you can do this however you want with whatever variables you set up
+//     if (req.user.username === 'admin') {
+//         return next();
+//     }
+//
+//     // IF A USER IS NOT ADMIN, THEN REDIRECT THEM SOMEWHERE
+//     res.redirect('/403');
+// }
+//
+// function isAdminOrSelf(req, res, next) {
+//     // do any checks you want to in here
+//
+//     // CHECK THE USER STORED IN SESSION FOR A CUSTOM VARIABLE
+//     // you can do this however you want with whatever variables you set up
+//     if (req.user.username === 'admin' || req.user.id.toString() === req.params.id ) {
+//         return next();
+//     }
+//
+//     // IF A USER IS NOT ADMIN, THEN REDIRECT THEM SOMEWHERE
+//     res.redirect('/403');
+// }
+//
+// function isNotAuthenticatedOrAdmin(req, res, next) {
+//     // do any checks you want to in here
+//
+//     // CHECK THE USER STORED IN SESSION FOR A CUSTOM VARIABLE
+//     // you can do this however you want with whatever variables you set up
+//     if ((!(req.isAuthenticated())) || req.user.isadmin) {
+//         return next();
+//     }
+//     // IF A USER IS NOT ADMIN, THEN REDIRECT THEM SOMEWHERE
+//     res.redirect('/403');
+// }
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    res.render('home/index', {
-        req: req,
-        title: 'GIF.com',
-        alert: req.flash('alert')
+    if (!req.isAuthenticated()){
+        res.render('home/index', {
+            req: req,
+            title: 'GIF.com',
+            alert: req.flash('alert')
+        });
+    }
+    connection.query('SELECT count(*) as status FROM topicfollowing WHERE following = ?', [req.user.id],
+        function (error, results, fields) {
+        // error will be an Error if one occurred during the query
+        // results will contain the results of the query
+        // fields will contain information about the returned results fields (if any)
+        if (error) {
+            throw error;
+        }
+        if (results[0].status === 0){
+            res.render('home/index', {
+                req: req,
+                title: 'GIF.com',
+                alert: req.flash('alert')
+            });
+        }
+        connection.query('SELECT t.id, t.name, t.imageurl from topicfollowing as tf inner join topic as t ' +
+            'on tf.followed = t.id where tf.following = ? ORDER BY tf.datecreated DESC', [req.user.id],
+            function (error, results, fields) {
+                if (error) {
+                    throw error;
+                }
+                console.log(results);
+                res.render('home/indexfeed', {
+                    req: req,
+                    results: results,
+                    title: 'GIF.com',
+                    alert: req.flash('alert')
+                });
+            }
+        );
+
     });
-    // if (req.isAuthenticated()) {
-    //     res.render('home/feed', {
-    //         req: req
-    //     })
-    // }
-    // res.render('home/index', {
-    //     req: req,
-    //     alert: req.flash('alert'),
-    // });
 });
 
 /// USERS ROUTES ///
@@ -460,7 +367,8 @@ router.post('/users', isNotAuthenticated, [
                 if (err) {
                     throw error;
                 }
-                connection.query('INSERT INTO user (email, username, password) VALUES (?, ?, ?)', [email, username, hash], function (error, results, fields) {
+                connection.query('INSERT INTO user (email, username, password) VALUES (?, ?, ?)',
+                    [email, username, hash], function (error, results, fields) {
                     // error will be an Error if one occurred during the query
                     // results will contain the results of the query
                     // fields will contain information about the returned results fields (if any)
@@ -476,7 +384,7 @@ router.post('/users', isNotAuthenticated, [
 );
 
 // GET request for one User.
-router.get('/users/:id', function(req, res){
+router.get('/users/:id', resourceExists, function(req, res){
     connection.query('SELECT id, username, datecreated, description, imageurl FROM `user` WHERE id = ?; SELECT id, ' +
         'imageurl FROM image WHERE userid = ? ORDER BY datecreated DESC LIMIT 12;SELECT count(*) as imagescount FROM ' +
         'image WHERE userid = ?;SELECT count(*) as followingcount FROM topicfollowing WHERE following = ?;',
@@ -497,8 +405,8 @@ router.get('/users/:id', function(req, res){
     });
 });
 
-/// GET request for user followering sorted by created date in descending order limit by 12
-router.get('/users/:id/following', function(req, res){
+/// GET request for user following sorted by created date in descending order limit by 12
+router.get('/users/:id/following', resourceExists, function(req, res){
     connection.query('SELECT id, username, datecreated, description, imageurl FROM `user` WHERE id = ?;SELECT t.id, ' +
         't.name, t.imageurl from topicfollowing as tf inner join topic as t on tf.followed = t.id where tf.following ' +
         '= ? ORDER BY tf.datecreated DESC LIMIT 12; SELECT count(*) as imagescount FROM image WHERE userid = ?; SELECT' +
@@ -521,18 +429,15 @@ router.get('/users/:id/following', function(req, res){
 });
 
 // GET request to update User.
-router.get('/users/:id/edit', isAuthenticated, isSelf, function(req, res){
-    connection.query('SELECT id, email, username, description FROM user WHERE id = ?', [req.params.id], function (error, results, fields) {
+router.get('/users/:id/edit', resourceExists, isAuthenticated, isSelf, function(req, res){
+    connection.query('SELECT id, email, username, description FROM user WHERE id = ?', [req.params.id],
+        function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
         // fields will contain information about the returned results fields (if any)
         if (error) {
             throw error;
         }
-        // results[0].date = JSON.stringify(results[0].date).slice(1,11);
-        //results[0].dob = s.slice(6,8) + '-' + s.slice(9,11) + '-' + s.slice(1,5);
-        // console.log(results[0].dob);
-        //console.log(results[0].city);
         res.render('users/edit', {
             req: req,
             result: results[0],
@@ -544,7 +449,7 @@ router.get('/users/:id/edit', isAuthenticated, isSelf, function(req, res){
 });
 
 // PUT request to update User.
-router.put('/users/:id', isAuthenticated, isSelf, upload.single('file'), [
+router.put('/users/:id', resourceExists, isAuthenticated, isSelf, upload.single('file'), [
     body('email', 'Empty email').not().isEmpty(),
     body('username', 'Empty username').not().isEmpty(),
     body('description', 'Empty password').not().isEmpty(),
@@ -624,7 +529,7 @@ router.put('/users/:id', isAuthenticated, isSelf, upload.single('file'), [
 });
 
 // DELETE request to delete User.
-router.delete('/users/:id', isAuthenticated, isSelf, function(req, res){
+router.delete('/users/:id', resourceExists, isAuthenticated, isSelf, function(req, res){
     connection.query('DELETE FROM user WHERE id = ?', [req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
@@ -713,7 +618,7 @@ router.post('/images', isAuthenticated, upload.single('file'), [
 );
 
 // GET request for one Image.
-router.get('/images/:id', function(req, res){
+router.get('/images/:id', resourceExists, function(req, res){
     connection.query('select i.id, i.imageurl, i.datecreated, i.userid, i.topicid, u.username, t.name from image as i inner join user as u on i.userid = u.id inner join topic as t on i.topicid = t.id where i.id = ?', [req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
@@ -732,7 +637,7 @@ router.get('/images/:id', function(req, res){
 });
 
 // DELETE request to delete Image.
-router.delete('/images/:id', isAuthenticated, function(req, res){
+router.delete('/images/:id', resourceExists, isAuthenticated, function(req, res){
     connection.query('SELECT userid FROM image WHERE id = ?', [req.params.id], function (error, results, fields) {
         // error will be an Error if one occurred during the query
         // results will contain the results of the query
@@ -758,7 +663,6 @@ router.delete('/images/:id', isAuthenticated, function(req, res){
 });
 
 /// TOPIC ROUTES ///
-
 // GET request for list of all Topic items.
 router.get('/topics', function(req, res){
     connection.query('SELECT * FROM `topic`', function (error, results, fields) {
@@ -771,8 +675,8 @@ router.get('/topics', function(req, res){
         console.log(results);
         res.render('topics/index', {
             req: req,
-            topics: results,
-            title: 'Users',
+            results: results,
+            title: 'Topics',
             alert: req.flash('alert')
         });
     });
@@ -780,7 +684,7 @@ router.get('/topics', function(req, res){
 
 // get topic information, get 10 images of the topic, if current user is logged in, check if he has
 // followed topic or not if yes pass unfollow to button value else pass follow to button value
-router.get('/topics/:id', function(req, res){
+router.get('/topics/:id', resourceExists, function(req, res){
     connection.query('SELECT id, name, description, datecreated, imageurl FROM `topic` WHERE id = ?; SELECT id, ' +
         'imageurl FROM `image` WHERE topicid = ? ORDER BY datecreated DESC LIMIT 12; SELECT count(*) as imagescount ' +
         'FROM image WHERE topicid = ?;SELECT count(*) as followerscount FROM topicfollowing WHERE followed = ?',
@@ -816,12 +720,11 @@ router.get('/topics/:id', function(req, res){
                     alert: req.flash('alert')
                 });
             }
-
         });
 });
 
 /// GET request for topic followers sorted by created date in descending order limit by 12
-router.get('/topics/:id/followers', function(req, res){
+router.get('/topics/:id/followers', resourceExists, function(req, res){
     connection.query('SELECT id, name, description, imageurl FROM `topic` WHERE id = ?; SELECT u.id, u.username, ' +
         'u.imageurl from topicfollowing as tf inner join user as u on tf.following = u.id where tf.followed = ? ' +
         'ORDER BY tf.datecreated DESC LIMIT 12; SELECT count(*) as imagescount FROM image WHERE topicid = ?;' +
@@ -843,7 +746,6 @@ router.get('/topics/:id/followers', function(req, res){
 });
 
 /// TOPICFOLLOWING ROUTES ///
-
 // POST request for creating Topicfollowing.
 router.post('/topicfollowings', isAuthenticated, function(req, res) {
     connection.query('INSERT INTO topicfollowing (following, followed) VALUES (?, ?)', [req.user.id, req.body.topicid], function (error, results, fields) {
@@ -892,33 +794,7 @@ router.delete('/topicfollowings', isAuthenticated, function(req, res) {
     // });
 });
 
-// DELETE request for deleting Topicfollowing.
-// router.delete('/topicfollowings/:id', isAuthenticated, function(req, res) {
-//     connection.query('SELECT following FROM topicfollowing WHERE id = ?', [req.params.id], function (error, results, fields) {
-//         // error will be an Error if one occurred during the query
-//         // results will contain the results of the query
-//         // fields will contain information about the returned results fields (if any)
-//         if (error) {
-//             throw error;
-//         }
-//         const userid = results[0].following;
-//         if (req.user.id !== userid) {
-//             res.redirect('/403');
-//         }
-//         connection.query('DELETE FROM topicfollowing WHERE id = ?', [req.params.id], function (error, results, fields) {
-//             // error will be an Error if one occurred during the query
-//             // results will contain the results of the query
-//             // fields will contain information about the returned results fields (if any)
-//             if (error) {
-//                 throw error;
-//             }
-//             res.json({status: 'done'});
-//         });
-//     });
-// });
-
 /// LOGIN ROUTES ///
-
 router.get('/login', isNotAuthenticated, function(req, res) {
     res.render('login', {
         req: req,
@@ -942,7 +818,6 @@ router.get('/logout', isAuthenticated, function(req, res){
 });
 
 /// ERROR ROUTES ///
-
 router.get('/403', function(req, res){
     res.render('403');
 });

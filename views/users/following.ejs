@@ -42,14 +42,26 @@
                         <% if (results[1].length > 0) { %>
                         <div id="count" class="et_pb_section et_pb_section_1 et_section_specialty pt-none" data-count=<%= results[3][0].followingcount %>>
                             <div class="et_pb_row">
+                                <!--<div id="gallery" class="gallery">-->
+                                    <!--<% for(var i=0; i < results[1].length; i++) { %>-->
+                                    <!--<div class="gallery-item">-->
+                                        <!--<a class="gallery-item-a mr-none" href="/topics/<%= results[1][i].id %>"><img class="gallery-item-img" src="<%= results[1][i].imageurl %>" alt="">-->
+                                        <!--</a>-->
+                                    <!--</div>-->
+                                    <!--<% } %>-->
+                                <!--</div>-->
+
                                 <div id="gallery" class="gallery">
                                     <% for(var i=0; i < results[1].length; i++) { %>
-                                    <div class="gallery-item">
-                                        <a class="gallery-item-a mr-none" href="/topics/<%= results[1][i].id %>"><img class="gallery-item-img" src="<%= results[1][i].imageurl %>" alt="">
+                                    <div class="gallery-item relative">
+                                        <img class="gallery-item-img" src="<%= results[1][i].imageurl %>" alt="">
+                                        <a class="absolute flex-imp width-100p height-100p t0 justify align-items" href="/topics/<%= results[1][i].id %>">
+                                            <span class="white fs-20 fwb"><%= results[1][i].name %></span>
                                         </a>
                                     </div>
                                     <% } %>
                                 </div>
+
                                 <div id="loadMore">
                                 </div>
                             </div>

@@ -13,12 +13,9 @@ let flash = require('connect-flash');
 let methodOverride = require("method-override");
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;
-
-
 var indexRouter = require('./routes/index');
-// var usersRouter = require('./routes/users');
-
 var app = express();
+
 var connection = mysql.createConnection({
     host     : process.env.HOSTNAME,
     user     : process.env.USERNAME,
@@ -27,7 +24,6 @@ var connection = mysql.createConnection({
     database : process.env.DB_NAME,
     multipleStatements: true
 });
-
 connection.connect(function(err) {
     if (err) {
         console.error('error connecting: ' + err.stack);
@@ -36,7 +32,6 @@ connection.connect(function(err) {
 
     console.log('connected as id ' + connection.threadId);
 });
-
 global.connection = connection;
 
 // view engine setup
@@ -50,7 +45,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(methodOverride('_method'));
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static('public'))
 app.use(session({
     secret: 'keyboard cat',
@@ -104,25 +98,16 @@ passport.use(new LocalStrategy({
 
         });}
 ));
-
 passport.serializeUser(function(user, done) {
     done(null, user.id);
 });
-
-// passport.deserializeUser(function(id, done) {
-//     User.findById(id, function(err, user) {
-//         done(err, user);
-//     });
-// });
 passport.deserializeUser(function(id, done) {
     connection.query("select * from user where id = "+id,function(err,rows){
         done(err, rows[0]);
     });
 });
 
-
 app.use('/', indexRouter);
-// app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -137,7 +122,7 @@ app.use(function(err, req, res, next) {
 
     // render the error page
     res.status(err.status || 500);
-    res.render('error');
+    res.redirect('/404');
 });
 
 module.exports = app;
