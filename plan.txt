@@ -60,7 +60,7 @@ both folders respectively
 -> Views
 -> Models
 -For API, define routes, controllers, views, and models as needed
-- In this case, /images routes, ...
+- In this case, /images routes and also for other tables
 -For Database, define tables
 --> user
 --> image
@@ -93,7 +93,7 @@ identical structure and data
 -S3 is used to host user uploaded images, profile pictures, and topic pictures
 
 Others
--AJAX is implemented to fetch more data for topic page, user page, topics/id/followers page, and
+-AJAX is implemented to fetch more data for topic page(load more images), user page(load more images), topics/id/followers page, and
 users/id/following page
 -.env files are used to load credentials in both environments
 
