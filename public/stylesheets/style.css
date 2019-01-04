@@ -369,6 +369,7 @@
     float: none;
 }
 
-.et-social-icons li {
-    mar
+#navtoggle:before {
+    content: 'Menu';
+    font-size: 16px;
 }
