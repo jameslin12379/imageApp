@@ -60,6 +60,10 @@
     padding-bottom: 14px;
 }
 
+.ptb-15i {
+    padding: 15px 0!important;
+}
+
 .fw-700 {
     font-weight: 700;
 }
@@ -89,6 +93,10 @@
     font-size: 20px!important;
 }
 
+.fs-16i {
+    font-size: 16px!important;
+}
+
 .lh-13 {
     line-height: 1.3rem;
 
@@ -111,7 +119,13 @@
 /*line-height: 1.3em;*/
 
 
+.ml0i {
+    margin-left: 0!important;
+}
 
+.mr-10i {
+    margin-right: 10px!important;
+}
 
 .mb-1 {
     margin-bottom: 1rem;
@@ -351,3 +365,10 @@
     top: 0;
 }
 
+.float-none {
+    float: none;
+}
+
+.et-social-icons li {
+    mar
+}
