@@ -218,10 +218,10 @@ function resourceExists(req, res, next) {
             break;
     }
     var connection = mysql.createConnection({
-        host     : process.env.HOSTNAME,
-        user     : process.env.USERNAME,
-        password : process.env.PASSWORD,
-        port     : process.env.PORT,
+        host     : process.env.DB_HOSTNAME,
+        user     : process.env.DB_USERNAME,
+        password : process.env.DB_PASSWORD,
+        port     : process.env.DB_PORT,
         database : process.env.DB_NAME,
         multipleStatements: true
     });
