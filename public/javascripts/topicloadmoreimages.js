@@ -5,7 +5,7 @@
 
 const loadMoreElement = document.querySelector('#loadMore');
 const galleryElement = document.querySelector('#gallery');
-const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000/images' : 'http://api.gif67.com/images';
+const API_URL = window.location.hostname === 'localhost' ? 'https://localhost:3000/images' : 'https://api.gif67.com/images';
 const url = window.location.href;
 const topicid = url.substring(url.lastIndexOf('/') + 1);
 let count = document.getElementsByClassName('gallery-item').length;

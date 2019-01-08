@@ -1,7 +1,7 @@
 const loadMoreElement = document.querySelector('#loadMore');
 const galleryElement = document.querySelector('#gallery');
-const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000/topicfollowings' : 'http://api.gif67.com/topicfollowings';
-const API_URL2 = window.location.hostname === 'localhost' ? 'http://localhost:3000/topics' : 'http://api.gif67.com/topics';
+const API_URL = window.location.hostname === 'localhost' ? 'https://localhost:3000/topicfollowings' : 'https://api.gif67.com/topicfollowings';
+const API_URL2 = window.location.hostname === 'localhost' ? 'https://localhost:3000/topics' : 'https://api.gif67.com/topics';
 
 const url = window.location.href;
 const first = url.substring(0, url.lastIndexOf('/'));
