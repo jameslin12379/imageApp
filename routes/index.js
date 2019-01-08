@@ -548,7 +548,7 @@ router.delete('/users/:id', resourceExists, isAuthenticated, isSelf, function(re
 router.get('/images/new', isAuthenticated, function(req, res){
     res.render('images/new', {
         req: req,
-        title: 'Upload a photo',
+        title: 'Upload',
         errors: req.flash('errors'),
         inputs: req.flash('inputs')
     });
@@ -676,7 +676,7 @@ router.get('/topics', function(req, res){
         res.render('topics/index', {
             req: req,
             results: results,
-            title: 'Topics',
+            title: 'Explore',
             alert: req.flash('alert')
         });
     });

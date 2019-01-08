@@ -23,7 +23,7 @@
                                                     <!--<div class="grid">-->
                                                         <!--<p></p>-->
 
-                                                        <div class="grid mza w-20 pb-14">
+                                                        <div class="grid mza w-25 pb-14">
                                                             <p><%= results[2][0].imagescount %> Photos</p>
                                                             <a class="brown" href="/topics/<%= results[0][0].id %>/followers"><p><span id="topicfollowerscount"><%= results[3][0].followerscount %></span> Followers</p></a>
                                                         </div>
@@ -82,7 +82,5 @@
 <% if (req.isAuthenticated()) { %>
 <script src="/javascripts/topicfollowunfollow.js"></script>
 <% } %>
-
-
 
 <% include ../partials/footer %>

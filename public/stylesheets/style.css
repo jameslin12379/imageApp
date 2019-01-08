@@ -155,6 +155,10 @@
     margin: 0 auto;
 }
 
+.mt-15 {
+    margin-top: 15px;
+}
+
 .red {
     color: red;
 }
@@ -169,6 +173,10 @@
 
 .brown {
     color: #8585bd!important;
+}
+
+.gray {
+    color: #666;
 }
 
 .submit-button {
@@ -235,12 +243,39 @@
     }
 }
 
-@media (max-width: 980px) {
+
+
+@media (max-width: 576px) {
     .gallery{
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         grid-gap: 1em;
     }
+    .gallery-s{
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-gap: 1em;
+    }
+    .w-25 {
+        width: 50%;
+    }
+}
+
+
+@media (min-width: 577px) {
+    .gallery{
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-gap: 1em;
+    }
+    .gallery-s{
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-gap: 1em;
+    }
+    .w-25 {
+        width: 35%;
+    }
 }
 
 @media (min-width: 981px) {
@@ -249,23 +284,32 @@
         grid-template-columns: 1fr 1fr 1fr 1fr;
         grid-gap: 1em;
     }
-}
-
-@media (max-width: 980px) {
-    .gallery-s{
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        grid-gap: 1em;
-    }
-}
-
-@media (min-width: 981px) {
     .gallery-s{
         display: grid;
         grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
         grid-gap: 1em;
     }
+    .w-25 {
+        width: 25%;
+    }
 }
+
+/*@media (max-width: 980px) {*/
+    /*.gallery-s{*/
+        /*display: grid;*/
+        /*grid-template-columns: 1fr 1fr 1fr 1fr;*/
+        /*grid-gap: 1em;*/
+    /*}*/
+
+/*}*/
+
+/*@media (min-width: 981px) {*/
+    /*.gallery-s{*/
+        /*display: grid;*/
+        /*grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;*/
+        /*grid-gap: 1em;*/
+    /*}*/
+/*}*/
 
 .br-50 {
     border-radius: 50%;
@@ -333,9 +377,7 @@
     grid-template-columns: 1fr 1fr;
 }
 
-.w-20 {
-    width: 20%;
-}
+
 
 .w-60 {
     width: 60%;
@@ -372,4 +414,25 @@
 #navtoggle:before {
     content: 'Menu';
     font-size: 16px;
+    color: #666;
 }
+
+#navtoggle:hover {
+    opacity: 0.7;
+    transition: all .4s ease-in-out;
+}
+
+.ib {
+    display: inline-block;
+}
+
+@media (min-width: 981px) {
+    .mt-15 {
+        margin-top: 20px;
+    }
+}
+
+.currentpage {
+    color: #2ea3f2!important;
+}
+

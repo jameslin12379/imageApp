@@ -41,6 +41,5 @@ document.addEventListener('scroll', () => {
             count = document.getElementsByClassName('gallery-item').length;
             skip = count;
         }
-
     }
 });

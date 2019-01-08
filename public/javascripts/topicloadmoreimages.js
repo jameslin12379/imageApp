@@ -3,7 +3,6 @@
 // 12 images and if successful append them into the page
 // stop sending ajax requests when there are no more images
 
-
 const loadMoreElement = document.querySelector('#loadMore');
 const galleryElement = document.querySelector('#gallery');
 const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000/images' : 'http://api.gif67.com/images';
@@ -18,8 +17,6 @@ document.addEventListener('scroll', () => {
     const rect = loadMoreElement.getBoundingClientRect();
     if (rect.top < window.innerHeight) {
         if (count < total) {
-            console.log(count);
-            console.log(total);
             fetch(`${API_URL}?filter[fields][id]=true&filter[fields][imageurl]=true&filter[where][topicid]=${topicid}
     &filter[order]=datecreated%20DESC&filter[limit]=${limit}&filter[skip]=${skip}`).then(response => response.json())
                 .then(result => {
@@ -42,6 +39,5 @@ document.addEventListener('scroll', () => {
             count = document.getElementsByClassName('gallery-item').length;
             skip = count;
         }
-
     }
 });
