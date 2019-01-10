@@ -147,8 +147,48 @@ private key and certificate file (signed by letsencrypt CA). Test if HTTPS is wo
 5. Others
 5.1 Reference Wordpress themes and Divi themes for design
 5.2 Additional features
+5.3 To implement HTTPS locally, generate private key and root certificate. Trust root certificate on OS. Use it
+to generate certificates for each domain name and config Nginx web server to use paths to these domain names private
+keys and certificates. Test if HTTPS works.
+To implement HTTPS in production environment, setup Certbot and generate certificates for all domain names either
+altogether in one file (new way/old way) or separate files. The root certificate, which represents the CA, is already
+taken care of. Configure Nginx web server to use paths to these domain names private keys and certificates, either
+pointing to same two files or separate files. Test if HTTPS works. By default, when most clients receive a response
+from your server, the root certificate which represents the CA is received and checked against its list of trusted CAs
+to determine if website is valid. Since letsencrypt is well established, most browsers already contain this CA in its
+list thus the website gets approved. Test if HTTPS works.
+--> For local, www.gif67.com.dev gif67.com.dev api.gif67.com.dev others
+--> For production, www.gif67.com gif67.com api.gif67.com
 
+5.3
+To implement HTTPS locally, create root certificate and sign it. Trust this root certificate on your OS. Define
+needed domain name certificates and sign them using root certificate. You can do a wildcard certificate (covers a domain
+and all subdomains), place domain and subdomains into a single certificate, or create a certificate for domain and each
+subdomain. Once SSL certificates setup is completed, configure Nginx so each 443 request is handled by a server and ssl
+certificate and key. For example, if we covered domain and subdomains in a single certificate, then requests to
+www.gif67.com.dev and gif67.com.dev will be processed by Nodejs server at port 3001 and a response will be sent back
+to client along with certificate information containing root certificate, intermediate certificate if there is any, and
+domain certificate. The client would check CA that signed root certificate which in this case is owner and would
+normally be rejected since this CA is not by default inside the browser's list of acceptable CAs. But since trust is
+aleady enforced, this CA would be accepted and browser would interpret this certificate as valid and secure. Also, the
+requested domain name would be checked against the domain certificate returned which in this case would cover the
+requested domain so no error will be raised regarding this issue.
 
+To implement HTTPS in production environment, use Certbot to send a CSR request to letsencrypt CA so a root certificate
+signed by letsencrypt would be obtained and also intermediate certificates would be obtained. You can do a wildcard
+certificate (covers a domain and all subdomains), place domain and subdomains into a single certificate, or create a
+certificate for domain and eachsubdomain. Once SSL certificates setup is completed, configure Nginx as above. When a
+443 request is sent to this ip, 443 server block will handle traffic based on hostname. For hostnames of www.gif67.com
+and gif67.com, these requests will be handled by Nodejs server at port 3000 on a different IP and a response will be
+sent back to client along with certificate information containing root certificate, intermediate certificate if there
+is any, and domain certificate. The client would check CA that signed root certificate which in this case is letsencrypt
+and would be accepted. The requested domain would be checked against domain certificate used which in this case covers
+domain and subdomains thus no error is raised.
+
+-image
+-->app
+-->api
+-->aws
 
 
 
